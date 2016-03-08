@@ -9,11 +9,19 @@ import index.HashIndex;
  */
 public class KeyScan extends Iterator {
 
+  Schema tableSchema;
+  HashIndex index;
+  SearchKey key;
+  HeapFile file;
+
   /**
    * Constructs an index scan, given the hash index and schema.
    */
   public KeyScan(Schema schema, HashIndex index, SearchKey key, HeapFile file) {
-    throw new UnsupportedOperationException("Not implemented");
+    this.tableSchema = schema;
+    this.index = index;
+    this.key = key;
+    this.file = file;
   }
 
   /**
