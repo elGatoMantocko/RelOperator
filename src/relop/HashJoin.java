@@ -2,6 +2,16 @@ package relop;
 
 public class HashJoin extends Iterator {
 
+  public Schema schema;
+
+  public HashJoin() {
+    schema = null;
+  }
+    
+  public HashJoin(Schema schema) { 
+    this.schema = schema;
+  }
+
   @Override
   public void restart() {
     // TODO Auto-generated method stub
