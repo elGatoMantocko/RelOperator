@@ -5,11 +5,18 @@ public class HashJoin extends Iterator {
   public Schema schema;
 
   public HashJoin() {
-    schema = null;
+    // TODO Empty HashJoin constructor
+    // not sure how to initialize this yet
   }
     
-  public HashJoin(Schema schema) { 
-    this.schema = schema;
+  public HashJoin(FileScan scan1, FileScan scan2, int noidea, int noclue) { 
+    // TODO HashJoin constructor with two filescans
+    // not sure how to initialize this yet
+  }
+
+  public HashJoin(HashJoin hj, IndexScan scan, int noidea, int noclue) {
+    // TODO HashJoin copy constructor
+    // not sure how to initialize this yet
   }
 
   @Override
