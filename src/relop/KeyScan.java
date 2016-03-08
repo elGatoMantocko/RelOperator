@@ -3,24 +3,22 @@ package relop;
 import global.SearchKey;
 import heap.HeapFile;
 import index.HashIndex;
+import index.HashScan;
 
 /**
  * Wrapper for hash scan, an index access method.
  */
 public class KeyScan extends Iterator {
 
-  Schema tableSchema;
-  HashIndex index;
-  SearchKey key;
-  HeapFile file;
+  private HeapFile file;
+  private HashScan scan;
 
   /**
    * Constructs an index scan, given the hash index and schema.
    */
   public KeyScan(Schema schema, HashIndex index, SearchKey key, HeapFile file) {
-    this.tableSchema = schema;
-    this.index = index;
-    this.key = key;
+    this.setSchema(schema);
+    this.scan = index.openScan(key);
     this.file = file;
   }
 
@@ -57,7 +55,7 @@ public class KeyScan extends Iterator {
    * Returns true if there are more tuples, false otherwise.
    */
   public boolean hasNext() {
-    throw new UnsupportedOperationException("Not implemented");
+    return scan.hasNext();
   }
 
   /**
@@ -66,7 +64,10 @@ public class KeyScan extends Iterator {
    * @throws IllegalStateException if no more tuples
    */
   public Tuple getNext() {
-    throw new UnsupportedOperationException("Not implemented");
-  }
-
+    try {
+      return new Tuple(this.getSchema(), file.selectRecord(scan.getNext()));
+    } catch(Exception e){
+      throw new IllegalArgumentException();
+    }
+  } 
 } // public class KeyScan extends Iterator
