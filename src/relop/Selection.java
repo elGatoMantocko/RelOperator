@@ -91,6 +91,11 @@ public class Selection extends Iterator {
     // return new Tuple(scan.getSchema(), scan.getNext());
     Tuple ret = next;
 
+    if (!scan.hasNext()) {
+      next = null;
+      return ret;
+    }
+
     boolean passes;
     do {
       passes = false;
