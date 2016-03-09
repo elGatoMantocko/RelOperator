@@ -18,7 +18,6 @@ public class Selection extends Iterator {
   public Selection(Iterator iter, Predicate... preds) {
     this.scan = iter;
     this.preds = preds;
-
     this.setSchema(iter.getSchema());
 
     // // lets make sure the predicates make sense
