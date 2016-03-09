@@ -15,9 +15,6 @@ public abstract class Iterator {
 
   // --------------------------------------------------------------------------
 
-  public Iterator(Iterator copy) {
-    setSchema(copy.getSchema());
-  }
   /**
    * Gives a one-line explaination of the iterator, repeats the call on any
    * child iterators, and increases the indent depth along the way.

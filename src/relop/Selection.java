@@ -16,9 +16,10 @@ public class Selection extends Iterator {
    * Constructs a selection, given the underlying iterator and predicates.
    */
   public Selection(Iterator iter, Predicate... preds) {
-    super(iter);
     this.scan = iter;
     this.preds = preds;
+
+    setSchema(iter.getSchema());
 
     // // lets make sure the predicates make sense
     // for (int i = 0; i < preds.length; i++) {

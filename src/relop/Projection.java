@@ -1,16 +1,27 @@
 package relop;
 
+
 /**
  * The projection operator extracts columns from a relation; unlike in
  * relational algebra, this operator does NOT eliminate duplicate tuples.
  */
 public class Projection extends Iterator {
 
+  private Iterator iter;
+
   /**
    * Constructs a projection, given the underlying iterator and field numbers.
    */
   public Projection(Iterator iter, Integer... fields) {
-    throw new UnsupportedOperationException("Not implemented");
+    this.iter = iter;
+
+    Schema schema = iter.getSchema();
+    Schema newSchema = new Schema(fields.length);
+    int fieldno = 0;
+    for (Integer field : fields) {
+      newSchema.initField(fieldno++, schema.fieldType(field), schema.fieldLength(field), schema.fieldName(field));
+    }
+    this.setSchema(newSchema);
   }
 
   /**
@@ -25,28 +36,28 @@ public class Projection extends Iterator {
    * Restarts the iterator, i.e. as if it were just constructed.
    */
   public void restart() {
-    throw new UnsupportedOperationException("Not implemented");
+    iter.restart();
   }
 
   /**
    * Returns true if the iterator is open; false otherwise.
    */
   public boolean isOpen() {
-    throw new UnsupportedOperationException("Not implemented");
+    return iter.isOpen();
   }
 
   /**
    * Closes the iterator, releasing any resources (i.e. pinned pages).
    */
   public void close() {
-    throw new UnsupportedOperationException("Not implemented");
+    iter.close();
   }
 
   /**
    * Returns true if there are more tuples, false otherwise.
    */
   public boolean hasNext() {
-    throw new UnsupportedOperationException("Not implemented");
+    return iter.hasNext();
   }
 
   /**
@@ -55,7 +66,18 @@ public class Projection extends Iterator {
    * @throws IllegalStateException if no more tuples
    */
   public Tuple getNext() {
-    throw new UnsupportedOperationException("Not implemented");
+    Tuple next = iter.getNext();
+    Tuple out = new Tuple(getSchema());
+
+    Object[] allFields = next.getAllFields();
+    for (int i = 0; i < allFields.length; i++) {
+      int newSchemaFieldNum = getSchema().fieldNumber(next.schema.fieldName(i));
+      if(newSchemaFieldNum > -1) { //If the field exists in the new schema.
+        out.setField(newSchemaFieldNum, next.getField(i));
+      }
+    }
+
+    return out;
   }
 
 } // public class Projection extends Iterator
