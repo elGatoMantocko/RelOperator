@@ -16,6 +16,7 @@ public class Selection extends Iterator {
    * Constructs a selection, given the underlying iterator and predicates.
    */
   public Selection(Iterator iter, Predicate... preds) {
+    super(iter);
     this.scan = iter;
     this.preds = preds;
 
