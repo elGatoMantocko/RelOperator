@@ -35,4 +35,13 @@ public class SimpleJoinTest {
         Projection pro = new Projection(join, 0, 1, 5, 6);
         pro.execute();
     }
+
+    @Test
+    public void testJoinNoCondition() throws Exception {
+        Predicate[] preds = new Predicate[]{new Predicate(AttrOperator.EQ,
+                AttrType.FIELDNO, 0, AttrType.FIELDNO, 0)};
+        SimpleJoin join = new SimpleJoin(new FileScan(ProvidedTestsHelper.getDriversSchema(), ProvidedTestsHelper.fillDriversFile().getValue1()),
+                new FileScan(ProvidedTestsHelper.getDriversSchema(), ProvidedTestsHelper.fillDriversFile().getValue1()), preds);
+        join.execute();
+    }
 }
