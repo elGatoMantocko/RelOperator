@@ -1,14 +1,18 @@
 package relop;
 
+import global.AttrOperator;
+import global.AttrType;
 import helpers.ProvidedTestsHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.*;
+
 /**
  * Created by david on 3/9/16.
  */
-public class ProjectionTest {
+public class SelectionTest {
 
     @Before
     public void setUp() throws Exception {
@@ -22,11 +26,13 @@ public class ProjectionTest {
 
     @Test
     public void testSimpleGetNext() throws Exception {
-
-        System.out.println("\n  ~> test projection (columns 3 and 1)...\n");
+        System.out.println("\n  ~> test selection (Age > 65 OR Age < 15)...\n");
+        Predicate[] preds = new Predicate[] {
+                new Predicate(AttrOperator.GT, AttrType.FIELDNO, 3, AttrType.FLOAT, 65F),
+                new Predicate(AttrOperator.LT, AttrType.FIELDNO, 3, AttrType.FLOAT, 15F)
+        };
         FileScan scan = new FileScan(ProvidedTestsHelper.getDriversSchema(), ProvidedTestsHelper.fillDriversFile().getValue1());
-        Projection pro = new Projection(scan, 3, 1);
-        pro.execute();
-
+        Selection sel = new Selection(scan, preds);
+        sel.execute();
     }
 }

@@ -82,7 +82,7 @@ public class ProvidedTestsHelper {
         return s_groups;
     }
 
-    public static HeapFile fillDriversFile() {
+    public static Pair<HeapFile, HashIndex> fillDriversFile() {
         // create and populate a temporary Drivers file and index
         Tuple tuple = new Tuple(getDriversSchema());
         HeapFile file = new HeapFile(null);
@@ -102,6 +102,6 @@ public class ProvidedTestsHelper {
             index.insertEntry(new SearchKey(age), rid);
 
         } // for
-        return file;
+        return new Pair<HeapFile, HashIndex>(file, index);
     }
 }
