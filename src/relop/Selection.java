@@ -10,8 +10,6 @@ public class Selection extends Iterator {
   private Predicate[] preds;
   private Iterator scan;
 
-  private boolean isopen;
-
   /**
    * Constructs a selection, given the underlying iterator and predicates.
    */
@@ -46,7 +44,7 @@ public class Selection extends Iterator {
    * Returns true if the iterator is open; false otherwise.
    */
   public boolean isOpen() {
-    throw new UnsupportedOperationException("Not implemented");
+    return scan.isOpen();
   }
 
   /**
@@ -60,6 +58,8 @@ public class Selection extends Iterator {
    * Returns true if there are more tuples, false otherwise.
    */
   public boolean hasNext() {
+    // is there another tuple in the file
+    //  that matches all of the predicates?
     // return scan.hasNext();
     return false;
   }
