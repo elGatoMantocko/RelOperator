@@ -129,10 +129,9 @@ class ROTest extends TestDriver {
 			saveCounts(null);
 			System.out.println("\n  ~> test selection (Age > 65 OR Age < 15)...\n");
 			Predicate[] preds = new Predicate[] {
-					new Predicate(AttrOperator.GT, AttrType.FIELDNO, 3, AttrType.FLOAT,
-							65F),
-							new Predicate(AttrOperator.LT, AttrType.FIELDNO, 3, AttrType.FLOAT,
-									15F) };
+              new Predicate(AttrOperator.GT, AttrType.FIELDNO, 3, AttrType.FLOAT, 65F),
+              new Predicate(AttrOperator.LT, AttrType.FIELDNO, 3, AttrType.FLOAT, 15F) 
+            };
 			FileScan scan = new FileScan(s_drivers, file);
 			Selection sel = new Selection(scan, preds);
 			sel.execute();
