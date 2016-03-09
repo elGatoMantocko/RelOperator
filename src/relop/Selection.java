@@ -7,11 +7,24 @@ package relop;
  */
 public class Selection extends Iterator {
 
+  private Predicate[] preds;
+  private Iterator scan;
+
+  private boolean isopen;
+
   /**
    * Constructs a selection, given the underlying iterator and predicates.
    */
   public Selection(Iterator iter, Predicate... preds) {
-    throw new UnsupportedOperationException("Not implemented");
+    // lets make sure the predicates make sense
+    for (int i = 0; i < preds.length; i++) {
+      if (preds[i].validate(scan.getSchema())) {
+        return;
+      }
+    }
+
+    this.scan = iter;
+    this.preds = preds;
   }
 
   /**
@@ -40,14 +53,15 @@ public class Selection extends Iterator {
    * Closes the iterator, releasing any resources (i.e. pinned pages).
    */
   public void close() {
-    throw new UnsupportedOperationException("Not implemented");
+    scan.close();
   }
 
   /**
    * Returns true if there are more tuples, false otherwise.
    */
   public boolean hasNext() {
-    throw new UnsupportedOperationException("Not implemented");
+    // return scan.hasNext();
+    return false;
   }
 
   /**
@@ -56,7 +70,8 @@ public class Selection extends Iterator {
    * @throws IllegalStateException if no more tuples
    */
   public Tuple getNext() {
-    throw new UnsupportedOperationException("Not implemented");
+    // return new Tuple(scan.getSchema(), scan.getNext());
+    return null;
   }
 
 } // public class Selection extends Iterator
