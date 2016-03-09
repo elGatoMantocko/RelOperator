@@ -3,17 +3,23 @@ package relop;
 import global.SearchKey;
 import heap.HeapFile;
 import index.HashIndex;
+import index.BucketScan;
 
 /**
  * Wrapper for bucket scan, an index access method.
  */
 public class IndexScan extends Iterator {
 
+  BucketScan scan;
+  HeapFile file;
+
   /**
    * Constructs an index scan, given the hash index and schema.
    */
   public IndexScan(Schema schema, HashIndex index, HeapFile file) {
-    throw new UnsupportedOperationException("Not implemented");
+    this.setSchema(schema);
+    this.scan = index.openScan();
+    this.file = file;
   }
 
   /**
@@ -49,7 +55,7 @@ public class IndexScan extends Iterator {
    * Returns true if there are more tuples, false otherwise.
    */
   public boolean hasNext() {
-    throw new UnsupportedOperationException("Not implemented");
+    return scan.hasNext();
   }
 
   /**
@@ -58,7 +64,11 @@ public class IndexScan extends Iterator {
    * @throws IllegalStateException if no more tuples
    */
   public Tuple getNext() {
-    throw new UnsupportedOperationException("Not implemented");
+    try {
+      return new Tuple(this.getSchema(), scan.getNext());
+    } catch(Exception e){
+      throw new IllegalStateException();
+    }
   }
 
   /**

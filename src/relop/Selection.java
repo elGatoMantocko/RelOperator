@@ -1,7 +1,5 @@
 package relop;
 
-import global.RID;
-
 /**
  * The selection operator specifies which tuples to retain under a condition; in
  * Minibase, this condition is simply a set of independent predicates logically
@@ -12,23 +10,32 @@ public class Selection extends Iterator {
   private Predicate[] preds;
   private Iterator scan;
 
-  private RID next;
+  private Tuple next;
 
   /**
    * Constructs a selection, given the underlying iterator and predicates.
    */
   public Selection(Iterator iter, Predicate... preds) {
-    // lets make sure the predicates make sense
-    for (int i = 0; i < preds.length; i++) {
-      if (preds[i].validate(scan.getSchema())) {
-        return;
-      }
-    }
-    
     this.scan = iter;
     this.preds = preds;
 
-    this.next = null;
+    setSchema(iter.getSchema());
+
+    // // lets make sure the predicates make sense
+    // for (int i = 0; i < preds.length; i++) {
+    //   if (preds[i].validate(scan.getSchema())) {
+    //     return;
+    //   }
+    // }
+
+    // should we actually find the first tuple matching the predicate here?
+    boolean passes = true;
+    do {
+      next = scan.getNext();
+      for (int i = 0; i < preds.length; i++) {
+        passes = passes && preds[i].evaluate(next);
+      }
+    } while (scan.hasNext() && !passes);
   }
 
   /**
@@ -67,8 +74,8 @@ public class Selection extends Iterator {
     // is there another tuple in the file
     //  that matches all of the predicates?
     // return scan.hasNext();
-    if (next == null) {
-      
+    if (next != null) {
+      return true;
     }
     
     return false;
