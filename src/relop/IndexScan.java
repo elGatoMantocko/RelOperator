@@ -10,8 +10,9 @@ import index.BucketScan;
  */
 public class IndexScan extends Iterator {
 
-  BucketScan scan;
-  HeapFile file;
+  private BucketScan scan;
+
+  private HashIndex index;
 
   /**
    * Constructs an index scan, given the hash index and schema.
@@ -19,7 +20,8 @@ public class IndexScan extends Iterator {
   public IndexScan(Schema schema, HashIndex index, HeapFile file) {
     this.setSchema(schema);
     this.scan = index.openScan();
-    this.file = file;
+
+    this.index = index;
   }
 
   /**
@@ -34,7 +36,8 @@ public class IndexScan extends Iterator {
    * Restarts the iterator, i.e. as if it were just constructed.
    */
   public void restart() {
-    throw new UnsupportedOperationException("Not implemented");
+    scan.close();
+    scan = index.openScan();
   }
 
   /**

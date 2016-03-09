@@ -11,6 +11,7 @@ import heap.HeapScan;
 public class FileScan extends Iterator {
 
   private HeapScan scan;
+  private HeapFile file;
 
   private RID rid;
 
@@ -22,6 +23,9 @@ public class FileScan extends Iterator {
   public FileScan(Schema schema, HeapFile file) {
     this.setSchema(schema);
     this.scan = file.openScan();
+
+    this.file = file;
+
     this.isopen = true;
 
     this.rid = new RID();
@@ -39,7 +43,8 @@ public class FileScan extends Iterator {
    * Restarts the iterator, i.e. as if it were just constructed.
    */
   public void restart() {
-    throw new UnsupportedOperationException("Not implemented");
+    scan.close();
+    scan = file.openScan();
   }
 
   /**

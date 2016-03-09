@@ -12,6 +12,8 @@ public class KeyScan extends Iterator {
 
   private HeapFile file;
   private HashScan scan;
+  private HashIndex index;
+  private SearchKey key;
 
   private boolean isopen;
 
@@ -22,7 +24,10 @@ public class KeyScan extends Iterator {
     this.isopen = true;
     this.setSchema(schema);
     this.scan = index.openScan(key);
+
     this.file = file;
+    this.index = index;
+    this.key = key;
   }
 
   /**
@@ -38,8 +43,8 @@ public class KeyScan extends Iterator {
    * Restarts the iterator, i.e. as if it were just constructed.
    */
   public void restart() {
-    // TODO Not sure about the best way to do this yet.
-    throw new UnsupportedOperationException("Not implemented");
+    scan.close();
+    scan = index.openScan(key);
   }
 
   /**
