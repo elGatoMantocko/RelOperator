@@ -11,7 +11,6 @@ import heap.HeapScan;
  */
 public class FileScan extends Iterator {
 
-  private HeapFile file;
   private HeapScan scan;
 
   private RID rid;
@@ -23,7 +22,6 @@ public class FileScan extends Iterator {
    */
   public FileScan(Schema schema, HeapFile file) {
     this.setSchema(schema);
-    this.file = file;
     this.scan = file.openScan();
     this.isopen = true;
   }
@@ -73,7 +71,7 @@ public class FileScan extends Iterator {
   public Tuple getNext() {
 
     if (rid == null) {
-      rid = new RID(new PageId(file.FIRST_PAGEID), 0);
+      rid = new RID(new PageId(HeapFile.FIRST_PAGEID), 0);
     }
 
     try {
