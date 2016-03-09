@@ -20,20 +20,13 @@ public class Selection extends Iterator {
     this.preds = preds;
     this.setSchema(iter.getSchema());
 
-    // // lets make sure the predicates make sense
-    // for (int i = 0; i < preds.length; i++) {
-    //   if (preds[i].validate(scan.getSchema())) {
-    //     return;
-    //   }
-    // }
-
     // should we actually find the first tuple matching the predicate here?
     boolean passes;
     do {
       passes = false;
       next = scan.getNext();
-      for (int i = 0; i < preds.length; i++) {
-        passes = passes || preds[i].evaluate(next);
+      for (Predicate pred : preds) {
+        passes = passes || pred.evaluate(next);
       }
     } while (scan.hasNext() && !passes);
   }
@@ -101,8 +94,8 @@ public class Selection extends Iterator {
       passes = false;
       next = scan.getNext();
       // System.out.println(next.toString());
-      for (int i = 0; i < preds.length; i++) {
-        passes = passes || preds[i].evaluate(next);
+      for (Predicate pred : preds) {
+        passes = passes || pred.evaluate(next);
       }
     } while (scan.hasNext() && !passes);
 
