@@ -1,7 +1,6 @@
 package relop;
 
 import global.RID;
-import global.PageId;
 import heap.HeapFile;
 import heap.HeapScan;
 
@@ -24,6 +23,8 @@ public class FileScan extends Iterator {
     this.setSchema(schema);
     this.scan = file.openScan();
     this.isopen = true;
+
+    this.rid = new RID();
   }
 
   /**
@@ -69,14 +70,10 @@ public class FileScan extends Iterator {
    * @throws IllegalStateException if no more tuples
    */
   public Tuple getNext() {
-
-    if (rid == null) {
-      rid = new RID(new PageId(HeapFile.FIRST_PAGEID), 0);
-    }
-
     try {
       return new Tuple(this.getSchema(), scan.getNext(rid));
     } catch(Exception e){
+      System.out.println(e);
       throw new IllegalStateException();
     }
   }
