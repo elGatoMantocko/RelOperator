@@ -19,16 +19,6 @@ public class Selection extends Iterator {
     this.scan = iter;
     this.preds = preds;
     this.setSchema(iter.getSchema());
-
-    // should we actually find the first tuple matching the predicate here?
-    boolean passes;
-    do {
-      passes = false;
-      next = scan.getNext();
-      for (Predicate pred : preds) {
-        passes = passes || pred.evaluate(next);
-      }
-    } while (scan.hasNext() && !passes);
   }
 
   /**
@@ -43,7 +33,7 @@ public class Selection extends Iterator {
    * Restarts the iterator, i.e. as if it were just constructed.
    */
   public void restart() {
-    throw new UnsupportedOperationException("Not implemented");
+    scan.restart();
   }
 
   /**
@@ -67,11 +57,22 @@ public class Selection extends Iterator {
     // is there another tuple in the file
     //  that matches all of the predicates?
     // return scan.hasNext();
-    if (next != null) {
-      return true;
+
+    if (!scan.hasNext()) {
+      return false;
     }
-    
-    return false;
+
+    boolean passes;
+    do {
+      passes = false;
+      next = scan.getNext();
+      for (Predicate pred : preds) {
+        passes = passes || pred.evaluate(next);
+      }
+    } while (!passes && scan.hasNext()); // exit the loop when we find a matching tuple
+
+    // the state of the 'next' tuple should be stored in passes
+    return passes;
   }
 
   /**
@@ -81,23 +82,17 @@ public class Selection extends Iterator {
    */
   public Tuple getNext() {
     // get the next tuple that matches the predicates
-    // return new Tuple(scan.getSchema(), scan.getNext());
     Tuple ret = next;
 
-    if (!scan.hasNext()) {
+    if (next != null && !scan.hasNext()) { // next is the last element in the set of tuples
       next = null;
-      return ret;
     }
-
-    boolean passes;
-    do {
-      passes = false;
-      next = scan.getNext();
-      // System.out.println(next.toString());
-      for (Predicate pred : preds) {
-        passes = passes || pred.evaluate(next);
-      }
-    } while (scan.hasNext() && !passes);
+    else if (next == null && !scan.hasNext()) { // there are no more tuples and next has been set to null
+      // this means we are at the end of the scan after evaluating the last tuple
+      // and the user still called getNext without checking if there were any more tuples in the scan.
+      //  What a dick.
+      throw new IllegalStateException();
+    }
 
     return ret;
   }
