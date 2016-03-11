@@ -1,4 +1,4 @@
-/RelOperator.iml
+*.iml
 /.idea
 *.swp
 .DS_Store
@@ -10,3 +10,4 @@
 
 bin
 /out
+target
