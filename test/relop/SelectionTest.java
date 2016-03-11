@@ -25,14 +25,15 @@ public class SelectionTest {
     }
 
     @Test
-    public void testSimpleGetNext() throws Exception {
+    public void getNextSimple() throws Exception {
         System.out.println("\n  ~> test selection (Age > 65 OR Age < 15)...\n");
         Predicate[] preds = new Predicate[] {
-                new Predicate(AttrOperator.GT, AttrType.FIELDNO, 3, AttrType.FLOAT, 65F),
-                new Predicate(AttrOperator.LT, AttrType.FIELDNO, 3, AttrType.FLOAT, 15F)
+          new Predicate(AttrOperator.GT, AttrType.FIELDNO, 3, AttrType.FLOAT, 65F),
+          new Predicate(AttrOperator.LT, AttrType.FIELDNO, 3, AttrType.FLOAT, 15F)
         };
         FileScan scan = new FileScan(ProvidedTestsHelper.getDriversSchema(), ProvidedTestsHelper.fillDriversFile().getValue1());
         Selection sel = new Selection(scan, preds);
         sel.execute();
     }
 }
+
