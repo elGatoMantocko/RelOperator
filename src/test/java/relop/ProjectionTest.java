@@ -8,11 +8,10 @@ import org.junit.Test;
 /**
  * Created by david on 3/9/16.
  */
-public class ProjectionTest {
+public class ProjectionTest extends ProvidedTestsRoot {
 
     @Before
     public void setUp() throws Exception {
-        ProvidedTestsHelper.create_minibase();
     }
 
     @After

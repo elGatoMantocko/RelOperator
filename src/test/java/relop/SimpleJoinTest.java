@@ -10,11 +10,10 @@ import org.junit.Test;
 /**
  * Created by david on 3/9/16.
  */
-public class SimpleJoinTest {
+public class SimpleJoinTest extends ProvidedTestsRoot {
 
     @Before
     public void setUp() throws Exception {
-        ProvidedTestsHelper.create_minibase();
     }
 
     @After

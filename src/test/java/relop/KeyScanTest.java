@@ -9,11 +9,10 @@ import org.junit.Test;
 /**
  * Created by david on 3/9/16.
  */
-public class KeyScanTest {
+public class KeyScanTest extends ProvidedTestsRoot {
 
     @Before
     public void setUp() throws Exception {
-        ProvidedTestsHelper.create_minibase();
     }
 
     @After
