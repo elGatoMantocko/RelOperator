@@ -1,5 +1,6 @@
 package relop;
 
+import diskmgr.DiskMgr;
 import global.Minibase;
 import helpers.ProvidedTestsHelper;
 import org.junit.After;
@@ -17,5 +18,6 @@ public class ProvidedTestsRoot {
     @After
     public void destroyDB() throws Exception {
         Minibase.DiskManager.closeDB();
+        Minibase.DiskManager.destroyDB();
     }
 }

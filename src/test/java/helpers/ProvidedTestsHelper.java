@@ -9,6 +9,8 @@ import index.HashIndex;
 import relop.Schema;
 import relop.Tuple;
 
+import java.util.Random;
+
 /**
  * A helper class for all the initializations required by the provided tests.
  *
@@ -40,7 +42,7 @@ public class ProvidedTestsHelper {
 
     public static void create_minibase() {
         System.out.println("Creating database...\nReplacer: " + BUF_POLICY);
-        new Minibase(DB_PATH, DB_SIZE, BUF_SIZE, BUF_POLICY, false);
+        new Minibase(System.getProperty("user.name") + new Random().nextInt() + ".minibase", DB_SIZE, BUF_SIZE, BUF_POLICY, false);
     }
 
     public static Schema getDriversSchema() {
