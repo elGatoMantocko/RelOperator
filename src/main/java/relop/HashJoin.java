@@ -1,10 +1,21 @@
 package relop;
 
+import global.PageId;
+
+import java.util.Map;
+
 public class HashJoin extends Iterator {
 
-  public HashJoin(FileScan outer, FileScan inner, int outercolnum, int innercolnum) { 
+    private Map<Object, Tuple> mMap;
+
+    public HashJoin(FileScan outer, FileScan inner, int outercolnum, int innercolnum) {
     // TODO HashJoin constructor with two filescans
     // not sure how to initialize this yet
+    mMap = new MultipleValueTreeMap();
+    while(outer.hasNext()) {
+        Tuple next = outer.getNext();
+
+    }
   }
 
   public HashJoin(HashJoin hj, IndexScan scan, int outercolnum, int innercolnum) {

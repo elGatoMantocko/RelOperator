@@ -1,7 +1,5 @@
 package relop;
 
-import global.PageId;
-
 import java.util.*;
 
 /**
@@ -9,12 +7,12 @@ import java.util.*;
  *
  * @author David Tschida
  */
-public class MultipleValueTreeMap implements Map<Object, Tuple> {
+public class MultipleValueTreeMap<K,V> implements Map<K, V> {
 
-    TreeMap<Object, Set<Tuple>> mMap;
+    TreeMap<K, Set<V>> mMap;
 
     public MultipleValueTreeMap() {
-        mMap = new TreeMap<Object, Set<Tuple>>();
+        mMap = new TreeMap<K, Set<V>>();
     }
     /**
      * Returns the number of key-value mappings in this map.  If the
@@ -55,35 +53,12 @@ public class MultipleValueTreeMap implements Map<Object, Tuple> {
      */
     public boolean containsKey(Object keyObj) {
         if(keyObj == null) throw new NullPointerException();
-        Short key = (Short) keyObj;
+        K key = (K) keyObj;
         return !(mMap.get(key) == null || mMap.get(key).isEmpty());
     }
 
-    public TreeMap<Object, Set<Tuple>> getTreeMap() {
+    public TreeMap<K, Set<V>> getTreeMap() {
         return mMap;
-    }
-
-    public void remove(PageId value) {
-        Entry toRemove = null;
-
-        for(Object key : keySet()) {
-            for(Tuple pid : mMap.get(key)) {
-                toRemove  = new Entry(key, pid);
-            }
-        }
-
-        if(toRemove != null) {
-            mMap.get(toRemove.getKey()).remove(toRemove.getValue());
-            if(mMap.get(toRemove.getKey()).isEmpty())
-                mMap.remove(toRemove.getKey());
-        }
-    }
-
-    public void remove(Object key, Tuple value) {
-        mMap.get(key).remove(value);
-
-        if(mMap.get(key).isEmpty())
-            mMap.remove(key);
     }
 
     /**
@@ -105,7 +80,7 @@ public class MultipleValueTreeMap implements Map<Object, Tuple> {
      *                              (<a href="{@docRoot}/java/util/Collection.html#optional-restrictions">optional</a>)
      */
     public boolean containsValue(Object value) {
-        for(Tuple pageId : values()) {
+        for(V pageId : values()) {
             if(pageId.equals(value)) {
                 return true;
             }
@@ -138,7 +113,7 @@ public class MultipleValueTreeMap implements Map<Object, Tuple> {
      *                              does not permit null keys
      *                              (<a href="{@docRoot}/java/util/Collection.html#optional-restrictions">optional</a>)
      */
-    public Tuple get(Object key) {
+    public V get(Object key) {
         if(!containsKey(key)) return null;
         return mMap.get(key).iterator().next();
     }
@@ -148,7 +123,7 @@ public class MultipleValueTreeMap implements Map<Object, Tuple> {
      * (optional operation).  If the map previously contained a mapping for
      * the key, the old value is replaced by the specified value.  (A map
      * <tt>m</tt> is said to contain a mapping for a key <tt>k</tt> if and only
-     * if {@link #containsKey(Object) m.containsKey(k)} would return
+     * if {@link #containsKey(K) m.containsKey(k)} would return
      * <tt>true</tt>.)
      *
      * @param key   key with which the specified value is to be associated
@@ -167,10 +142,10 @@ public class MultipleValueTreeMap implements Map<Object, Tuple> {
      * @throws IllegalArgumentException      if some property of the specified key
      *                                       or value prevents it from being stored in this map
      */
-    public Tuple put(Object key, Tuple value) {
-        Set<Tuple> array = mMap.get(key);
+    public V put(K key, V value) {
+        Set<V> array = mMap.get(key);
         if(array == null) {
-            array = new HashSet<Tuple>();
+            array = new HashSet<V>();
             mMap.put(key, array);
         }
         array.add(value);
@@ -207,14 +182,14 @@ public class MultipleValueTreeMap implements Map<Object, Tuple> {
      *                                       map does not permit null keys
      *                                       (<a href="{@docRoot}/java/util/Collection.html#optional-restrictions">optional</a>)
      */
-    public Tuple remove(Object key) {
-        throw new UnsupportedOperationException();
+    public V remove(Object key) {
+        return null;
     }
 
     /**
      * Copies all of the mappings from the specified map to this map
      * (optional operation).  The effect of this call is equivalent to that
-     * of calling {@link #put(Object, Object) put(k, v)} on this map once
+     * of calling {@link #put(K, K) put(k, v)} on this map once
      * for each mapping from key <tt>k</tt> to value <tt>v</tt> in the
      * specified map.  The behavior of this operation is undefined if the
      * specified map is modified while the operation is in progress.
@@ -230,7 +205,7 @@ public class MultipleValueTreeMap implements Map<Object, Tuple> {
      * @throws IllegalArgumentException      if some property of a key or value in
      *                                       the specified map prevents it from being stored in this map
      */
-    public void putAll(Map<? extends Object, ? extends Tuple> m) {
+    public void putAll(Map<? extends K, ? extends V> m) {
         throw new UnsupportedOperationException();
     }
 
@@ -260,9 +235,9 @@ public class MultipleValueTreeMap implements Map<Object, Tuple> {
      *
      * @return a set view of the keys contained in this map
      */
-    public Set<Object> keySet() {
-        Set<Object> fullKeySet = new HashSet<Object>();
-        for(Object size : mMap.keySet()) {
+    public Set<K> keySet() {
+        Set<K> fullKeySet = new HashSet<K>();
+        for(K size : mMap.keySet()) {
             if (mMap.get(size) != null && !mMap.get(size).isEmpty()) {
                 fullKeySet.add(size);
             }
@@ -285,9 +260,9 @@ public class MultipleValueTreeMap implements Map<Object, Tuple> {
      *
      * @return a collection view of the values contained in this map
      */
-    public Collection<Tuple> values() {
-        Set<Tuple> values = new HashSet<Tuple>();
-        for(Set<Tuple> pages : mMap.values()) {
+    public Collection<V> values() {
+        Set<V> values = new HashSet<V>();
+        for(Set<V> pages : mMap.values()) {
             values.addAll(pages);
         }
         return values;
@@ -309,21 +284,21 @@ public class MultipleValueTreeMap implements Map<Object, Tuple> {
      *
      * @return a set view of the mappings contained in this map
      */
-    public Set<Map.Entry<Object, Tuple>> entrySet() {
-        Set<Map.Entry<Object, Tuple>> entrySet = new HashSet<Map.Entry<Object, Tuple>>();
-        for(Object key : keySet()) {
-            for(Tuple pid : mMap.get(key)) {
+    public Set<Map.Entry<K, V>> entrySet() {
+        Set<Map.Entry<K, V>> entrySet = new HashSet<Map.Entry<K, V>>();
+        for(K key : keySet()) {
+            for(V pid : mMap.get(key)) {
                 entrySet.add(new Entry(key, pid));
             }
         }
         return entrySet;
     }
 
-    public static class Entry implements Map.Entry<Object, Tuple> {
-        Object mShort;
-        Tuple mPageId;
+    public class Entry implements Map.Entry<K, V> {
+        K mShort;
+        V mPageId;
 
-        public Entry(Object key, Tuple value) {
+        public Entry(K key, V value) {
             mShort = key;
             mPageId = value;
         }
@@ -335,7 +310,7 @@ public class MultipleValueTreeMap implements Map<Object, Tuple> {
          *                               required to, throw this exception if the entry has been
          *                               removed from the backing map.
          */
-        public Object getKey() {
+        public K getKey() {
             return mShort;
         }
 
@@ -349,7 +324,7 @@ public class MultipleValueTreeMap implements Map<Object, Tuple> {
          *                               required to, throw this exception if the entry has been
          *                               removed from the backing map.
          */
-        public Tuple getValue() {
+        public V getValue() {
             return mPageId;
         }
 
@@ -373,8 +348,8 @@ public class MultipleValueTreeMap implements Map<Object, Tuple> {
          *                                       required to, throw this exception if the entry has been
          *                                       removed from the backing map.
          */
-        public Tuple setValue(Tuple value) {
-            Tuple old = mPageId;
+        public V setValue(V value) {
+            V old = mPageId;
             mPageId = value;
             return old;
         }
