@@ -2,19 +2,12 @@ package relop;
 
 public class HashJoin extends Iterator {
 
-  public Schema schema;
-
-  public HashJoin() {
-    // TODO Empty HashJoin constructor
-    // not sure how to initialize this yet
-  }
-    
-  public HashJoin(FileScan scan1, FileScan scan2, int noidea, int noclue) { 
+  public HashJoin(FileScan outer, FileScan inner, int outercolnum, int innercolnum) { 
     // TODO HashJoin constructor with two filescans
     // not sure how to initialize this yet
   }
 
-  public HashJoin(HashJoin hj, IndexScan scan, int noidea, int noclue) {
+  public HashJoin(HashJoin hj, IndexScan scan, int outercolnum, int innercolnum) {
     // TODO HashJoin copy constructor
     // not sure how to initialize this yet
   }
@@ -23,12 +16,6 @@ public class HashJoin extends Iterator {
   public void restart() {
     // TODO Auto-generated method stub
 
-  }
-
-  @Override
-  public Tuple getNext() {
-    // TODO Auto-generated method stub
-    return null;
   }
 
   @Override
@@ -55,4 +42,9 @@ public class HashJoin extends Iterator {
     return false;
   }
 
+  @Override
+  public Tuple getNext() {
+    // TODO Auto-generated method stub
+    return null;
+  }
 }

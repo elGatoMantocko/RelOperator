@@ -256,8 +256,9 @@ class ROTest extends TestDriver {
 
 			// test hash join operator
 			saveCounts(null);
-			HashJoin join = new HashJoin(new FileScan(s_drivers, drivers),
-					new FileScan(s_rides, rides), 0, 0);
+			HashJoin join = new HashJoin(
+              new FileScan(s_drivers, drivers),
+			  new FileScan(s_rides, rides), 0, 0);
 			join.execute();
 
 			// destroy temp files before doing final counts
@@ -300,16 +301,16 @@ class ROTest extends TestDriver {
 			HashIndex ixdrivers = new HashIndex(null);
 			for (int i = 1; i <= SUPER_SIZE; i++) {
 
-				// create the tuple
-				tuple.setIntFld(0, i);
-				tuple.setStringFld(1, "f" + i);
-				tuple.setStringFld(2, "l" + i);
-				tuple.setFloatFld(3, (float) (i * 7.7));
-				tuple.setIntFld(4, i + 100);
+              // create the tuple
+              tuple.setIntFld(0, i);
+              tuple.setStringFld(1, "f" + i);
+              tuple.setStringFld(2, "l" + i);
+              tuple.setFloatFld(3, (float) (i * 7.7));
+              tuple.setIntFld(4, i + 100);
 
-				// insert the tuple in the file and index
-				RID rid = drivers.insertRecord(tuple.getData());
-				ixdrivers.insertEntry(new SearchKey(i), rid);
+              // insert the tuple in the file and index
+              RID rid = drivers.insertRecord(tuple.getData());
+              ixdrivers.insertEntry(new SearchKey(i), rid);
 
 			} // for
 			saveCounts("drivers");
@@ -340,12 +341,18 @@ class ROTest extends TestDriver {
 
 			// hash join of hash join; selection for output's sake
 			saveCounts(null);
-			HashJoin join1 = new HashJoin(new FileScan(s_groups, groups),
-					new FileScan(s_rides, rides), 0, 1);
-			HashJoin join2 = new HashJoin(join1, new IndexScan(s_drivers, ixdrivers,
-					drivers), 2, 0);
-			Selection sel = new Selection(join2, new Predicate(AttrOperator.LT,
-					AttrType.FIELDNO, 10, AttrType.FIELDNO, 0));
+			HashJoin join1 = new HashJoin(
+              new FileScan(s_groups, groups),
+			  new FileScan(s_rides, rides),
+              0, 1);
+			HashJoin join2 = new HashJoin(
+              join1,
+              new IndexScan(s_drivers, ixdrivers, drivers), 
+              2, 0);
+			Selection sel = new Selection(
+              join2,
+              new Predicate(AttrOperator.LT, AttrType.FIELDNO, 10, AttrType.FIELDNO, 0)
+              );
 			sel.execute();
 
 			// destroy temp files before doing final counts

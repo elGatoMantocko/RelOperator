@@ -73,9 +73,9 @@ public class Projection extends Iterator {
     int outFieldNum = 0;
     Object[] allFields = next.getAllFields();
 
-    for (int i = 0; i < allFields.length; i++) {
-      for(Integer fieldNum : fields) {
-        if(i == fieldNum) {
+    for(Integer fieldNum : fields) {
+      for (int i = 0; i < allFields.length; i++) {
+        if(fieldNum.equals(i)) {
           out.setField(outFieldNum++, next.getField(i));
         }
       }
