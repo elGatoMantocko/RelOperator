@@ -2,22 +2,48 @@ package relop;
 
 import java.util.Map;
 
+import global.SearchKey;
+import index.HashIndex;
+import heap.HeapFile;
+import relop.IndexScan;
+
 public class HashJoin extends Iterator {
 
   private Map<Object, Tuple> mMap;
+  private IndexScan hash;
 
   public HashJoin(FileScan outer, FileScan inner, int outercolnum, int innercolnum) {
     // TODO HashJoin constructor with two filescans
     // partitioning phase
-    mMap = new MultipleValueTreeMap<Object, Tuple>();
+    HashIndex index = new HashIndex(null);
+    HeapFile heap = new HeapFile(null);
+
+    // have to build a heapfile
     while (outer.hasNext()) {
-      Tuple next = outer.getNext();
-      mMap.put(next.getField(outercolnum), next);
+      heap.insertRecord(outer.getNext().getData());
     }
-    while (inner.hasNext()) {
-      Tuple next = outer.getNext();
-      mMap.put(next.getField(innercolnum), next);
+
+    // restart the scan
+    outer.restart();
+
+    // build the index scan
+    while (outer.hasNext()) {
+      // build a hashindex object
+      index.insertEntry(new SearchKey(outer.getNext().getField(outercolnum)), outer.getLastRID());
     }
+    hash = new IndexScan(outer.getSchema(), index, heap);
+
+    // not sure if we will be able to use the map object
+    //  need methods like getNextHash and getLastKey in index scan
+    // mMap = new MultipleValueTreeMap<Object, Tuple>();
+    // while (outer.hasNext()) {
+    //   Tuple next = outer.getNext();
+    //   mMap.put(next.getField(outercolnum), next);
+    // }
+    // while (inner.hasNext()) {
+    //   Tuple next = outer.getNext();
+    //   mMap.put(next.getField(innercolnum), next);
+    // }
   }
 
   public HashJoin(HashJoin hj, IndexScan scan, int outercolnum, int innercolnum) {
