@@ -78,7 +78,7 @@ public class IndexScan extends Iterator {
    * Gets the key of the last tuple returned.
    */
   public SearchKey getLastKey() {
-    throw new UnsupportedOperationException("Not implemented");
+    return scan.getLastKey();
   }
 
   /**
@@ -86,7 +86,7 @@ public class IndexScan extends Iterator {
    * number of buckets if none.
    */
   public int getNextHash() {
-    throw new UnsupportedOperationException("Not implemented");
+    return scan.getNextHash();
   }
 
 } // public class IndexScan extends Iterator

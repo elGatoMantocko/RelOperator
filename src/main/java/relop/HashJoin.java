@@ -97,6 +97,9 @@ public class HashJoin extends Iterator {
   @Override
   public boolean hasNext() {
     // TODO Auto-generated method stub
+    // first we have to build a memory hash table on
+    //  the outer scan
+    
     return false;
   }
 
