@@ -1,49 +1,39 @@
 package relop;
 
-import java.util.Map;
-
 import global.SearchKey;
 import index.HashIndex;
+import index.BucketScan;
 import heap.HeapFile;
 import relop.IndexScan;
 
 public class HashJoin extends Iterator {
 
-  private Map<Object, Tuple> mMap;
-  private IndexScan hash;
+  private IndexScan outerIndexScan, innerIndexScan;
+  private BucketScan outerBucketScan, innerBucketScan;
+  private HashIndex outerHash, innerHash;
+
+  private int outercolnum, innercolnum;
+
+  private Schema schema;
 
   public HashJoin(FileScan outer, FileScan inner, int outercolnum, int innercolnum) {
     // TODO HashJoin constructor with two filescans
     // partitioning phase
-    HashIndex index = new HashIndex(null);
-    HeapFile heap = new HeapFile(null);
+    this.outercolnum = outercolnum;
+    this.innercolnum = innercolnum;
 
-    // have to build a heapfile
-    while (outer.hasNext()) {
-      heap.insertRecord(outer.getNext().getData());
-    }
+    this.schema = Schema.join(outer.getSchema(), inner.getSchema());
 
-    // restart the scan
-    outer.restart();
+    // create the hash index on the scans given
+    outerHash = getHashIndex(outer, outercolnum);
+    innerHash = getHashIndex(inner, innercolnum);
 
-    // build the index scan
-    while (outer.hasNext()) {
-      // build a hashindex object
-      index.insertEntry(new SearchKey(outer.getNext().getField(outercolnum)), outer.getLastRID());
-    }
-    hash = new IndexScan(outer.getSchema(), index, heap);
+    // create the index scans on the hash indexs
+    outerIndexScan = getIndexScan(outer, outerHash);
+    innerIndexScan = getIndexScan(inner, innerHash);
 
-    // not sure if we will be able to use the map object
-    //  need methods like getNextHash and getLastKey in index scan
-    // mMap = new MultipleValueTreeMap<Object, Tuple>();
-    // while (outer.hasNext()) {
-    //   Tuple next = outer.getNext();
-    //   mMap.put(next.getField(outercolnum), next);
-    // }
-    // while (inner.hasNext()) {
-    //   Tuple next = outer.getNext();
-    //   mMap.put(next.getField(innercolnum), next);
-    // }
+    outerBucketScan = outerHash.openScan();
+    innerBucketScan = innerHash.openScan();
   }
 
   public HashJoin(HashJoin hj, IndexScan scan, int outercolnum, int innercolnum) {
@@ -51,10 +41,37 @@ public class HashJoin extends Iterator {
     // not sure how to initialize this yet
   }
 
+  private HashIndex getHashIndex(FileScan scan, int colnum) {
+    HashIndex hash = new HashIndex(null);
+    scan.restart();
+
+    while (scan.hasNext()) {
+      Tuple t = scan.getNext();
+      hash.insertEntry(new SearchKey(t.getField(colnum)), scan.getLastRID());
+    }
+
+    return hash;
+  }
+
+  private IndexScan getIndexScan(FileScan scan, HashIndex index) {
+    HeapFile heap = new HeapFile(null);
+
+    // make sure we are at the top of the scan
+    scan.restart();
+
+    // have to build a heapfile
+    while (scan.hasNext()) {
+      heap.insertRecord(scan.getNext().getData());
+    }
+
+    // create the index scan on the hashindex
+    return new IndexScan(scan.getSchema(), index, heap);
+  }
+
   @Override
   public void restart() {
-    // TODO Auto-generated method stub
-
+    outerIndexScan.restart();
+    innerIndexScan.restart();
   }
 
   @Override
