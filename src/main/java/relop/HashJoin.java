@@ -19,7 +19,6 @@ public class HashJoin extends Iterator {
   private Tuple next;
 
   public HashJoin(FileScan outer, FileScan inner, int outercolnum, int innercolnum) {
-    // TODO HashJoin constructor with two filescans
     // partitioning phase
     this.outercolnum = outercolnum;
     this.innercolnum = innercolnum;
@@ -98,7 +97,7 @@ public class HashJoin extends Iterator {
   @Override
   public boolean hasNext() {
     // TODO Auto-generated method stub
-      return false;
+    return false;
   }
 
   @Override
