@@ -8,7 +8,7 @@ import relop.IndexScan;
 
 public class HashJoin extends Iterator {
 
-  private IndexScan outerIndexScan, innerIndexScan;
+  private IndexScan outerScan, innerScan;
   private BucketScan outerBucketScan, innerBucketScan;
   private HashIndex outerHash, innerHash;
 
@@ -32,8 +32,8 @@ public class HashJoin extends Iterator {
     innerHash = getHashIndex(inner, innercolnum);
 
     // create the index scans on the hash indexs
-    outerIndexScan = getIndexScan(outer, outerHash);
-    innerIndexScan = getIndexScan(inner, innerHash);
+    outerScan = getIndexScan(outer, outerHash);
+    innerScan = getIndexScan(inner, innerHash);
 
     outerBucketScan = outerHash.openScan();
     innerBucketScan = innerHash.openScan();
@@ -73,8 +73,8 @@ public class HashJoin extends Iterator {
 
   @Override
   public void restart() {
-    outerIndexScan.restart();
-    innerIndexScan.restart();
+    outerScan.restart();
+    innerScan.restart();
   }
 
   @Override
@@ -85,13 +85,13 @@ public class HashJoin extends Iterator {
 
   @Override
   public void close() {
-    outerIndexScan.close();
-    innerIndexScan.close();
+    outerScan.close();
+    innerScan.close();
   }
 
   @Override
   public boolean isOpen() {
-    return outerIndexScan.isOpen() && innerIndexScan.isOpen();
+    return outerScan.isOpen() && innerScan.isOpen();
   }
 
   @Override
