@@ -16,6 +16,8 @@ public class HashJoin extends Iterator {
 
   private Schema schema;
 
+  private Tuple next;
+
   public HashJoin(FileScan outer, FileScan inner, int outercolnum, int innercolnum) {
     // TODO HashJoin constructor with two filescans
     // partitioning phase
@@ -23,6 +25,8 @@ public class HashJoin extends Iterator {
     this.innercolnum = innercolnum;
 
     this.schema = Schema.join(outer.getSchema(), inner.getSchema());
+
+    next = new Tuple(schema);
 
     // create the hash index on the scans given
     outerHash = getHashIndex(outer, outercolnum);
@@ -82,14 +86,13 @@ public class HashJoin extends Iterator {
 
   @Override
   public void close() {
-    // TODO Auto-generated method stub
-
+    outerIndexScan.close();
+    innerIndexScan.close();
   }
 
   @Override
   public boolean isOpen() {
-    // TODO Auto-generated method stub
-      return false;
+    return outerIndexScan.isOpen() && innerIndexScan.isOpen();
   }
 
   @Override
@@ -100,8 +103,11 @@ public class HashJoin extends Iterator {
 
   @Override
   public Tuple getNext() {
-    // TODO Auto-generated method stub
-      return null;
+    if (next == null) {
+      throw new IllegalStateException();
+    }
+    
+    return next;
   }
 }
 
