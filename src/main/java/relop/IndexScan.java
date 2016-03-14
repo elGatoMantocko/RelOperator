@@ -14,6 +14,8 @@ public class IndexScan extends Iterator {
 
   private HashIndex index;
 
+  private boolean isopen;
+
   /**
    * Constructs an index scan, given the hash index and schema.
    */
@@ -21,6 +23,7 @@ public class IndexScan extends Iterator {
     this.setSchema(schema);
     this.scan = index.openScan();
 
+    isopen = true;
     this.index = index;
   }
 
@@ -44,14 +47,15 @@ public class IndexScan extends Iterator {
    * Returns true if the iterator is open; false otherwise.
    */
   public boolean isOpen() {
-    throw new UnsupportedOperationException("Not implemented");
+    return isopen;
   }
 
   /**
    * Closes the iterator, releasing any resources (i.e. pinned pages).
    */
   public void close() {
-    throw new UnsupportedOperationException("Not implemented");
+    scan.close();
+    isopen = false;
   }
 
   /**
