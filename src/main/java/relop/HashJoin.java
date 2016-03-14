@@ -2,20 +2,17 @@ package relop;
 
 import global.SearchKey;
 import index.HashIndex;
-import index.BucketScan;
 import heap.HeapFile;
 import relop.IndexScan;
+
+import java.util.HashMap;
+import java.util.ArrayList;
 
 public class HashJoin extends Iterator {
 
   private IndexScan outerScan, innerScan;
-  private BucketScan outerBucketScan, innerBucketScan;
-  private HashIndex outerHash, innerHash;
-
-  private int outercolnum, innercolnum;
-
-  private Schema schema;
-
+  private int outercolnum, innercolnum, currentHash;
+  private HashMap<SearchKey, ArrayList<Tuple>> mMap;
   private Tuple next;
 
   public HashJoin(FileScan outer, FileScan inner, int outercolnum, int innercolnum) {
@@ -23,20 +20,18 @@ public class HashJoin extends Iterator {
     this.outercolnum = outercolnum;
     this.innercolnum = innercolnum;
 
-    this.schema = Schema.join(outer.getSchema(), inner.getSchema());
+    this.setSchema(Schema.join(outer.getSchema(), inner.getSchema()));
 
-    next = new Tuple(schema);
+    next = new Tuple(getSchema());
 
-    // create the hash index on the scans given
-    outerHash = getHashIndex(outer, outercolnum);
-    innerHash = getHashIndex(inner, innercolnum);
+    mMap = new HashMap<SearchKey, ArrayList<Tuple>>();
 
+    currentHash = -1;
+
+    // h1
     // create the index scans on the hash indexs
-    outerScan = getIndexScan(outer, outerHash);
-    innerScan = getIndexScan(inner, innerHash);
-
-    outerBucketScan = outerHash.openScan();
-    innerBucketScan = innerHash.openScan();
+    outerScan = getIndexScan(outer, getHashIndex(outer, outercolnum));
+    innerScan = getIndexScan(inner, getHashIndex(inner, innercolnum));
   }
 
   public HashJoin(HashJoin hj, IndexScan scan, int outercolnum, int innercolnum) {
@@ -50,6 +45,7 @@ public class HashJoin extends Iterator {
 
     while (scan.hasNext()) {
       Tuple t = scan.getNext();
+      // System.out.println(t.getField(colnum));
       hash.insertEntry(new SearchKey(t.getField(colnum)), scan.getLastRID());
     }
 
@@ -96,10 +92,49 @@ public class HashJoin extends Iterator {
 
   @Override
   public boolean hasNext() {
-    // TODO Auto-generated method stub
+
+    // at some point here we have to clear the in memory hashmap
+
     // first we have to build a memory hash table on
-    //  the outer scan
-    
+    int innerHashValue = innerScan.getNextHash();
+    // the hash table is built on the buckets in outerScan that are equal to anything on innerScan
+    if (innerHashValue != currentHash) {
+      currentHash = innerHashValue;
+      outerScan.restart();
+      mMap.clear();
+      // we first have to find our bucket that we are on
+      while (outerScan.hasNext() && outerScan.getNextHash() != currentHash) {
+        outerScan.getNext();
+      }
+
+      // h2
+      // insert any tuples in the current bucket into the memory hash
+      while (outerScan.getNextHash() == currentHash && outerScan.hasNext()) {
+        // we are on the correct partition
+        Tuple tup = outerScan.getNext();
+        SearchKey k = new SearchKey(tup.getField(outercolnum));
+        if (!mMap.containsKey(k)) {
+          mMap.put(k, new ArrayList<Tuple>());
+        }
+
+        // not sure but this doesn't handle duplicates
+        mMap.get(k).add(tup);
+      }
+    }
+
+    if (innerScan.hasNext()) {
+      Tuple innerTuple = innerScan.getNext();
+      ArrayList<Tuple> tuples = mMap.get(new SearchKey(innerTuple.getField(innercolnum)));
+      if (!tuples.isEmpty()) {
+        for (Tuple tuple : tuples) {
+          if (innerTuple.getField(innercolnum).equals(tuple.getField(outercolnum))) {
+            next = Tuple.join(tuple, innerTuple, this.getSchema());
+            return true;
+          }
+        }
+      }
+    }
+
     return false;
   }
 
