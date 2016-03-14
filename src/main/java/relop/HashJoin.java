@@ -5,14 +5,11 @@ import index.HashIndex;
 import heap.HeapFile;
 import relop.IndexScan;
 
-import java.util.HashMap;
-import java.util.ArrayList;
-
 public class HashJoin extends Iterator {
 
   private IndexScan outerScan, innerScan;
   private int outercolnum, innercolnum, currentHash;
-  private HashMap<SearchKey, ArrayList<Tuple>> mMap;
+  private HashTableDup hashTable;
   private Tuple next;
 
   public HashJoin(FileScan outer, FileScan inner, int outercolnum, int innercolnum) {
@@ -24,7 +21,7 @@ public class HashJoin extends Iterator {
 
     next = new Tuple(getSchema());
 
-    mMap = new HashMap<SearchKey, ArrayList<Tuple>>();
+    hashTable = new HashTableDup();
 
     currentHash = -1;
 
@@ -101,7 +98,7 @@ public class HashJoin extends Iterator {
     if (innerHashValue != currentHash) {
       currentHash = innerHashValue;
       outerScan.restart();
-      mMap.clear();
+      hashTable.clear();
       // we first have to find our bucket that we are on
       while (outerScan.hasNext() && outerScan.getNextHash() != currentHash) {
         outerScan.getNext();
@@ -113,19 +110,16 @@ public class HashJoin extends Iterator {
         // we are on the correct partition
         Tuple tup = outerScan.getNext();
         SearchKey k = new SearchKey(tup.getField(outercolnum));
-        if (!mMap.containsKey(k)) {
-          mMap.put(k, new ArrayList<Tuple>());
+        if (!hashTable.containsKey(k)) {
+          hashTable.add(k, tup);
         }
-
-        // not sure but this doesn't handle duplicates
-        mMap.get(k).add(tup);
       }
     }
 
     if (innerScan.hasNext()) {
       Tuple innerTuple = innerScan.getNext();
-      ArrayList<Tuple> tuples = mMap.get(new SearchKey(innerTuple.getField(innercolnum)));
-      if (!tuples.isEmpty()) {
+      Tuple[] tuples = hashTable.getAll(new SearchKey(innerTuple.getField(innercolnum)));
+      if (tuples!= null) {
         for (Tuple tuple : tuples) {
           if (innerTuple.getField(innercolnum).equals(tuple.getField(outercolnum))) {
             next = Tuple.join(tuple, innerTuple, this.getSchema());
