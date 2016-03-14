@@ -12,7 +12,7 @@ public class HashJoin extends Iterator {
   private HashTableDup hashTable;
   private Tuple next;
 
-  public HashJoin(FileScan outer, FileScan inner, int outercolnum, int innercolnum) {
+  public HashJoin(Iterator outer, Iterator inner, int outercolnum, int innercolnum) {
     // partitioning phase
     this.outercolnum = outercolnum;
     this.innercolnum = innercolnum;
@@ -23,12 +23,19 @@ public class HashJoin extends Iterator {
 
     hashTable = new HashTableDup();
 
-    currentHash = -1;
-
     // h1
     // create the index scans on the hash indexs
-    outerScan = getIndexScan(outer, getHashIndex(outer, outercolnum));
-    innerScan = getIndexScan(inner, getHashIndex(inner, innercolnum));
+    if (outer instanceof IndexScan) {
+      outerScan = (IndexScan)outer;
+    } else if (outer instanceof FileScan) {
+      outerScan = getIndexScan((FileScan)outer, getHashIndex((FileScan)outer, outercolnum));
+    }
+
+    if (inner instanceof IndexScan) {
+      innerScan = (IndexScan)inner;
+    } else if (inner instanceof FileScan) {
+      innerScan = getIndexScan((FileScan)inner, getHashIndex((FileScan)inner, innercolnum));
+    }
   }
 
   public HashJoin(HashJoin hj, IndexScan scan, int outercolnum, int innercolnum) {
