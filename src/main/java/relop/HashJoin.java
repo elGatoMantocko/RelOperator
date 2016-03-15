@@ -1,6 +1,7 @@
 package relop;
 
 import global.SearchKey;
+import global.RID;
 import index.HashIndex;
 import heap.HeapFile;
 import relop.IndexScan;
@@ -11,9 +12,9 @@ public class HashJoin extends Iterator {
   private int outercolnum, innercolnum, currentHash;
 
   private HashTableDup hashTable;
-  private Tuple[] tuples;
+  private Tuple[] tupsInBucket;
   private Tuple currentInnerTup;
-  private int position;
+  private int posInTupsArray;
   
   private Tuple next;
 
@@ -23,84 +24,37 @@ public class HashJoin extends Iterator {
     this.innercolnum = innercolnum;
 
     this.setSchema(Schema.join(outer.getSchema(), inner.getSchema()));
+    
+    // these will be used to determine the next tuples in the hash
+    this.next = new Tuple(getSchema());
+    this.hashTable = new HashTableDup();
 
-    next = new Tuple(getSchema());
-
-    hashTable = new HashTableDup();
-
-    // h1
-    // create the index scans on the hash indexs
+    // build the outer index scan
     if (outer instanceof IndexScan) {
-      outerScan = (IndexScan)outer;
-    } else if (outer instanceof FileScan) {
-      outerScan = getIndexScan((FileScan)outer, getHashIndex((FileScan)outer, outercolnum));
+      this.outerScan = (IndexScan)outer;
+    } else if (outer instanceof FileScan || outer instanceof HashJoin) {
+      this.outerScan = getIndexScan(outer, outercolnum);
     }
 
+    System.out.println(outerScan.hasNext());
+
+    // build the inner index scan
     if (inner instanceof IndexScan) {
-      innerScan = (IndexScan)inner;
-    } else if (inner instanceof FileScan) {
-      innerScan = getIndexScan((FileScan)inner, getHashIndex((FileScan)inner, innercolnum));
+      this.innerScan = (IndexScan)inner;
+    } else if (inner instanceof FileScan || inner instanceof HashJoin) {
+      this.innerScan = getIndexScan(inner, innercolnum);
     }
   }
 
-  public HashJoin(HashJoin outer, IndexScan innerScan, int outercolnum, int innercolnum) {
-    this.outercolnum = outercolnum;
-    this.innercolnum = innercolnum;
-
-    this.setSchema(Schema.join(outer.getSchema(), innerScan.getSchema()));
-
-    next = new Tuple(getSchema());
-
-    hashTable = new HashTableDup();
-
-    // i think we need to actually perform the join here
-    //  then build an index on the resulting table
+  private IndexScan getIndexScan(Iterator scan, int colnum) {
+    HashIndex index = new HashIndex(null);
     HeapFile heap = new HeapFile(null);
-    // first build a heapfile on the outer join
-    while (outer.hasNext()) {
-      Tuple t = outer.getNext();
-      heap.insertRecord(t.getData());
-    }
-
-    outer.restart();
-
-    // then build a hash index
-    FileScan file = new FileScan(getSchema(), heap);
-    HashIndex hash = new HashIndex(null);
-    while (file.hasNext()) {
-      Tuple t = file.getNext();
-      hash.insertEntry(new SearchKey(t.getField(outercolnum)), file.getLastRID());
-    }
-
-    this.outerScan = new IndexScan(getSchema(), hash, heap);
-    this.innerScan = innerScan;
-  }
-
-  private HashIndex getHashIndex(FileScan scan, int colnum) {
-    HashIndex hash = new HashIndex(null);
-    scan.restart();
-
     while (scan.hasNext()) {
       Tuple t = scan.getNext();
-      // System.out.println(t.getField(colnum));
-      hash.insertEntry(new SearchKey(t.getField(colnum)), scan.getLastRID());
+      RID rid = heap.insertRecord(t.getData());
+      index.insertEntry(new SearchKey(t.getField(colnum)), rid);
     }
 
-    return hash;
-  }
-
-  private IndexScan getIndexScan(FileScan scan, HashIndex index) {
-    HeapFile heap = new HeapFile(null);
-
-    // make sure we are at the top of the scan
-    scan.restart();
-
-    // have to build a heapfile
-    while (scan.hasNext()) {
-      heap.insertRecord(scan.getNext().getData());
-    }
-
-    // create the index scan on the hashindex
     return new IndexScan(scan.getSchema(), index, heap);
   }
 
@@ -127,29 +81,30 @@ public class HashJoin extends Iterator {
     return outerScan.isOpen() && innerScan.isOpen();
   }
 
+  private boolean findNextTuple() {
+    while (posInTupsArray < tupsInBucket.length) {
+      if (currentInnerTup.getField(innercolnum).equals(tupsInBucket[posInTupsArray].getField(outercolnum))) {
+        next = Tuple.join(tupsInBucket[posInTupsArray++], currentInnerTup, getSchema());
+        return true;
+      }
+      posInTupsArray++;
+    }
+    posInTupsArray = 0;
+    tupsInBucket = null;
+    return hasNext();
+  }
+
   @Override
   public boolean hasNext() {
 
-    // at some point here we have to clear the in memory hashmap
-    if (tuples != null) {
-      if (position == tuples.length - 1) {
-        position = 0;
-        tuples = null;
-        return hasNext();
-      } else {
-        while (position < tuples.length) {
-          if (currentInnerTup.getField(innercolnum).equals(tuples[position].getField(outercolnum))) {
-            next = Tuple.join(tuples[position++], currentInnerTup, getSchema());
-            return true;
-          }
-          position++;
-        }
-        position = 0;
-        tuples = null;
-        return hasNext();
-      }
+    if (tupsInBucket != null && posInTupsArray == tupsInBucket.length - 1) {
+      posInTupsArray = 0;
+      tupsInBucket = null;
+      return hasNext();
+    } else if (tupsInBucket != null){
+      return findNextTuple();
+    } else {
 
-    } else { 
       // lets first check that we are on the right bucket
       int innerHashValue = innerScan.getNextHash();
       if (innerHashValue != currentHash) {
@@ -171,25 +126,13 @@ public class HashJoin extends Iterator {
 
       if (innerScan.hasNext()) {
         currentInnerTup = innerScan.getNext();
-        tuples = hashTable.getAll(new SearchKey(currentInnerTup.getField(innercolnum)));
-        if (tuples != null) {
-          while (position < tuples.length) {
-            if (currentInnerTup.getField(innercolnum).equals(tuples[position].getField(outercolnum))) {
-              next = Tuple.join(tuples[position++], currentInnerTup, getSchema());
-              return true;
-            }
-            position++;
-          }
-          position = 0;
-          tuples = null;
-          return hasNext();
+        tupsInBucket = hashTable.getAll(new SearchKey(currentInnerTup.getField(innercolnum)));
+        if (tupsInBucket != null) {
+          return findNextTuple();
         }
       }
-      else {
-        tuples = null;
-        return false;
-      }
     }
+    tupsInBucket = null;
     return false;
   }
 
