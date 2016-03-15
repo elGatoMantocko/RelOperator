@@ -29,14 +29,14 @@ public class HashJoin extends Iterator {
     this.next = new Tuple(getSchema());
     this.hashTable = new HashTableDup();
 
+    this.currentHash = -1;
+
     // build the outer index scan
     if (outer instanceof IndexScan) {
       this.outerScan = (IndexScan)outer;
     } else if (outer instanceof FileScan || outer instanceof HashJoin) {
       this.outerScan = getIndexScan(outer, outercolnum);
     }
-
-    System.out.println(outerScan.hasNext());
 
     // build the inner index scan
     if (inner instanceof IndexScan) {
@@ -97,11 +97,13 @@ public class HashJoin extends Iterator {
   @Override
   public boolean hasNext() {
 
-    if (tupsInBucket != null && posInTupsArray == tupsInBucket.length - 1) {
+    // if we already have tuples and haven't reached the end
+    //  continue checking through that bucket
+    if (tupsInBucket != null && posInTupsArray == tupsInBucket.length - 1) { // if we are at the end, reset
       posInTupsArray = 0;
       tupsInBucket = null;
       return hasNext();
-    } else if (tupsInBucket != null){
+    } else if (tupsInBucket != null){ // if we aren't at the end, lets find the tuple in that bucket
       return findNextTuple();
     } else {
 
@@ -124,7 +126,7 @@ public class HashJoin extends Iterator {
         }
       }
 
-      if (innerScan.hasNext()) {
+      while (innerScan.hasNext()) {
         currentInnerTup = innerScan.getNext();
         tupsInBucket = hashTable.getAll(new SearchKey(currentInnerTup.getField(innercolnum)));
         if (tupsInBucket != null) {
