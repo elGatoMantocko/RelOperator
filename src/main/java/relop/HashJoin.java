@@ -43,9 +43,37 @@ public class HashJoin extends Iterator {
     }
   }
 
-  public HashJoin(HashJoin hj, IndexScan scan, int outercolnum, int innercolnum) {
-    // TODO HashJoin copy constructor
-    // not sure how to initialize this yet
+  public HashJoin(HashJoin outer, IndexScan innerScan, int outercolnum, int innercolnum) {
+    this.outercolnum = outercolnum;
+    this.innercolnum = innercolnum;
+
+    this.setSchema(Schema.join(outer.getSchema(), innerScan.getSchema()));
+
+    next = new Tuple(getSchema());
+
+    hashTable = new HashTableDup();
+
+    // i think we need to actually perform the join here
+    //  then build an index on the resulting table
+    HeapFile heap = new HeapFile(null);
+    // first build a heapfile on the outer join
+    while (outer.hasNext()) {
+      Tuple t = outer.getNext();
+      heap.insertRecord(t.getData());
+    }
+
+    outer.restart();
+
+    // then build a hash index
+    FileScan file = new FileScan(getSchema(), heap);
+    HashIndex hash = new HashIndex(null);
+    while (file.hasNext()) {
+      Tuple t = file.getNext();
+      hash.insertEntry(new SearchKey(t.getField(outercolnum)), file.getLastRID());
+    }
+
+    this.outerScan = new IndexScan(getSchema(), hash, heap);
+    this.innerScan = innerScan;
   }
 
   private HashIndex getHashIndex(FileScan scan, int colnum) {
