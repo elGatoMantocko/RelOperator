@@ -14,6 +14,7 @@ public class HashJoin extends Iterator {
   private HashTableDup hashTable;
   private Tuple[] tupsInBucket;
   private Tuple currentInnerTup;
+  // we need to save the state of the current bucket search
   private int posInTupsArray;
   
   private Tuple next;
@@ -126,6 +127,7 @@ public class HashJoin extends Iterator {
         }
       }
 
+      // still not entirely sure if this is right
       while (innerScan.hasNext()) {
         currentInnerTup = innerScan.getNext();
         tupsInBucket = hashTable.getAll(new SearchKey(currentInnerTup.getField(innercolnum)));
