@@ -34,7 +34,8 @@ public class IndexScan extends Iterator {
    * child iterators, and increases the indent depth along the way.
    */
   public void explain(int depth) {
-    throw new UnsupportedOperationException("Not implemented");
+    this.indent(depth);
+    System.out.println("IndexScan");
   }
 
   /**

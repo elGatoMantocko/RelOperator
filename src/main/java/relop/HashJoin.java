@@ -67,8 +67,11 @@ public class HashJoin extends Iterator {
 
   @Override
   public void explain(int depth) {
-    // TODO Auto-generated method stub
+    this.indent(depth);
+    System.out.println("HashJoin");
 
+    outerScan.explain(depth + 1);
+    innerScan.explain(depth + 1);
   }
 
   @Override
