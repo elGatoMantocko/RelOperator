@@ -35,14 +35,14 @@ public class HashJoin extends Iterator {
     // build the outer index scan
     if (outer instanceof IndexScan) {
       this.outerScan = (IndexScan)outer;
-    } else if (outer instanceof FileScan || outer instanceof HashJoin) {
+    } else {
       this.outerScan = getIndexScan(outer, outercolnum);
     }
 
     // build the inner index scan
     if (inner instanceof IndexScan) {
       this.innerScan = (IndexScan)inner;
-    } else if (inner instanceof FileScan || inner instanceof HashJoin) {
+    } else {
       this.innerScan = getIndexScan(inner, innercolnum);
     }
   }
