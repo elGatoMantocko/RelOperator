@@ -1,6 +1,7 @@
 package relop;
 
 import global.SearchKey;
+import global.RID;
 import heap.HeapFile;
 import index.HashIndex;
 import index.BucketScan;
@@ -11,8 +12,10 @@ import index.BucketScan;
 public class IndexScan extends Iterator {
 
   private BucketScan scan;
-
   private HashIndex index;
+  private HeapFile file;
+
+  private boolean isopen;
 
   /**
    * Constructs an index scan, given the hash index and schema.
@@ -20,7 +23,9 @@ public class IndexScan extends Iterator {
   public IndexScan(Schema schema, HashIndex index, HeapFile file) {
     this.setSchema(schema);
     this.scan = index.openScan();
+    this.file = file;
 
+    isopen = true;
     this.index = index;
   }
 
@@ -29,7 +34,8 @@ public class IndexScan extends Iterator {
    * child iterators, and increases the indent depth along the way.
    */
   public void explain(int depth) {
-    throw new UnsupportedOperationException("Not implemented");
+    this.indent(depth);
+    System.out.println("IndexScan");
   }
 
   /**
@@ -44,14 +50,15 @@ public class IndexScan extends Iterator {
    * Returns true if the iterator is open; false otherwise.
    */
   public boolean isOpen() {
-    throw new UnsupportedOperationException("Not implemented");
+    return isopen;
   }
 
   /**
    * Closes the iterator, releasing any resources (i.e. pinned pages).
    */
   public void close() {
-    throw new UnsupportedOperationException("Not implemented");
+    scan.close();
+    isopen = false;
   }
 
   /**
@@ -67,9 +74,11 @@ public class IndexScan extends Iterator {
    * @throws IllegalStateException if no more tuples
    */
   public Tuple getNext() {
-    try {
-      return new Tuple(this.getSchema(), scan.getNext());
-    } catch(Exception e){
+    RID rid = scan.getNext();
+    byte[] data = file.selectRecord(rid);
+    if (data != null) {
+      return new Tuple(getSchema(), data);
+    } else {
       throw new IllegalStateException();
     }
   }
@@ -78,7 +87,7 @@ public class IndexScan extends Iterator {
    * Gets the key of the last tuple returned.
    */
   public SearchKey getLastKey() {
-    throw new UnsupportedOperationException("Not implemented");
+    return scan.getLastKey();
   }
 
   /**
@@ -86,7 +95,7 @@ public class IndexScan extends Iterator {
    * number of buckets if none.
    */
   public int getNextHash() {
-    throw new UnsupportedOperationException("Not implemented");
+    return scan.getNextHash();
   }
 
 } // public class IndexScan extends Iterator

@@ -43,3 +43,4 @@ public class SimpleJoinTest extends ProvidedTestsRoot {
         join.execute();
     }
 }
+

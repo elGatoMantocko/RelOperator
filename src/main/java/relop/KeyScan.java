@@ -35,8 +35,8 @@ public class KeyScan extends Iterator {
    * child iterators, and increases the indent depth along the way.
    */
   public void explain(int depth) {
-    // TODO Not really sure what its asking.
-    throw new UnsupportedOperationException("Not implemented");
+    this.indent(depth);
+    System.out.println("KeyScan");
   }
 
   /**
