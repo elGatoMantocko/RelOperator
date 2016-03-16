@@ -1,5 +1,7 @@
 package relop;
 
+import global.AttrOperator;
+import global.AttrType;
 import helpers.ProvidedTestsHelper;
 
 import static org.junit.Assert.*;
@@ -26,6 +28,18 @@ public class HashJoinTest extends ProvidedTestsRoot {
     FileScan rides = ProvidedTestsHelper.hashFillRides();
     HashJoin join = new HashJoin(drivers, rides, 0, 0);
     join.execute();
+  }
+
+  @Test
+  public void subJoinOperation() {
+    IndexScan drivers = ProvidedTestsHelper.getLargeDriversFile();
+    FileScan rides = ProvidedTestsHelper.getLargeRidesFile();
+    FileScan groups = ProvidedTestsHelper.getLargeGroupFile();
+
+    HashJoin join1 = new HashJoin(groups, rides, 0, 1);
+    HashJoin join2 = new HashJoin(join1, drivers, 2, 0);
+	Selection sel = new Selection(join2, new Predicate(AttrOperator.LT, AttrType.FIELDNO, 10, AttrType.FIELDNO, 0));
+    sel.execute();
   }
 
 }
