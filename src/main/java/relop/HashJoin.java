@@ -82,62 +82,66 @@ public class HashJoin extends Iterator {
     return outerScan.isOpen() && innerScan.isOpen();
   }
 
-  private boolean findNextTuple() {
-    while (posInTupsArray < tupsInBucket.length) {
-      if (currentInnerTup.getField(innercolnum).equals(tupsInBucket[posInTupsArray].getField(outercolnum))) {
-        next = Tuple.join(tupsInBucket[posInTupsArray++], currentInnerTup, getSchema());
-        return true;
-      }
-      posInTupsArray++;
-    }
-    posInTupsArray = 0;
-    tupsInBucket = null;
-    return hasNext();
-  }
-
   @Override
   public boolean hasNext() {
 
-    // if we already have tuples and haven't reached the end
-    //  continue checking through that bucket
-    if (tupsInBucket != null && posInTupsArray == tupsInBucket.length - 1) { // if we are at the end, reset
-      posInTupsArray = 0;
-      tupsInBucket = null;
-      return hasNext();
-    } else if (tupsInBucket != null){ // if we aren't at the end, lets find the tuple in that bucket
-      return findNextTuple();
-    } else {
-
-      // lets first check that we are on the right bucket
-      int innerHashValue = innerScan.getNextHash();
-      if (innerHashValue != currentHash) {
-        // we aren't on the right bucket and need to create the hashTable
-        currentHash = innerHashValue;
+    // check if the hashtable has elements in it or not
+    if (tupsInBucket == null) {
+      // we need to find the tuples in the current bucket
+      int hashValue = innerScan.getNextHash();
+      // the outerBucket is not on the correct hash so we need to rebuild the hashTable
+      if (hashValue != currentHash) {
+        currentHash = hashValue;
         outerScan.restart();
         hashTable.clear();
 
+        // we need to find the correct bucket on the outer scan
         while (outerScan.hasNext() && outerScan.getNextHash() != currentHash) {
           outerScan.getNext();
         }
-
+        
+        // find all of the tuples in the current hash index and add them to the hashTable
         while (outerScan.getNextHash() == currentHash && outerScan.hasNext()) {
-          // currentHash is now correctly set to the right bucket
           Tuple outerTup = outerScan.getNext();
           hashTable.add(new SearchKey(outerTup.getField(outercolnum)), outerTup);
         }
       }
 
-      // still not entirely sure if this is right
-      while (innerScan.hasNext()) {
+      if (innerScan.hasNext()) {
         currentInnerTup = innerScan.getNext();
         tupsInBucket = hashTable.getAll(new SearchKey(currentInnerTup.getField(innercolnum)));
         if (tupsInBucket != null) {
-          return findNextTuple();
+          while (posInTupsArray < tupsInBucket.length) {
+            if (currentInnerTup.getField(innercolnum).equals(tupsInBucket[posInTupsArray].getField(outercolnum))) {
+              next = Tuple.join(tupsInBucket[posInTupsArray++], currentInnerTup, getSchema());
+              return true;
+            }
+            posInTupsArray++;
+          }
         }
+        posInTupsArray = 0;
+        tupsInBucket = null;
+        return hasNext();
+      } else {
+        tupsInBucket = null;
+        return false;
       }
+    } else if (posInTupsArray == tupsInBucket.length - 1) { // the hashtable has been initialized, but the position is at the end
+      posInTupsArray = 0;
+      tupsInBucket = null;
+      return hasNext();
+    } else {
+      while (posInTupsArray < tupsInBucket.length) {
+        if (currentInnerTup.getField(innercolnum).equals(tupsInBucket[posInTupsArray].getField(outercolnum))) {
+          next = Tuple.join(tupsInBucket[posInTupsArray++], currentInnerTup, getSchema());
+          return true;
+        }
+        posInTupsArray++;
+      }
+      posInTupsArray = 0;
+      tupsInBucket = null;
+      return hasNext();
     }
-    tupsInBucket = null;
-    return false;
   }
 
   @Override
