@@ -79,10 +79,10 @@ class ROTest extends TestDriver {
 		System.out.println();
 		if (status != PASS) {
 			System.out.println("Error(s) encountered during " + TEST_NAME + ".");
+            System.exit(-1);
 		} else {
 			System.out.println("All " + TEST_NAME
 					+ " completed; verify output for correctness.");
-            System.exit(-1);
 		}
 
 	} // public static void main (String argv[])
