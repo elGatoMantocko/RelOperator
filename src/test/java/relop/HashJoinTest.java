@@ -22,7 +22,9 @@ public class HashJoinTest extends ProvidedTestsRoot {
 
   @Test
   public void joinSmallTables() {
-    HashJoin join = new HashJoin(ProvidedTestsHelper.hashFillDrivers(), ProvidedTestsHelper.hashFillRides(), 0, 0);
+    FileScan drivers = ProvidedTestsHelper.hashFillDrivers();
+    FileScan rides = ProvidedTestsHelper.hashFillRides();
+    HashJoin join = new HashJoin(drivers, rides, 0, 0);
     join.execute();
   }
 
