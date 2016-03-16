@@ -82,6 +82,7 @@ class ROTest extends TestDriver {
 		} else {
 			System.out.println("All " + TEST_NAME
 					+ " completed; verify output for correctness.");
+            System.exit(-1);
 		}
 
 	} // public static void main (String argv[])
