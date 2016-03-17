@@ -62,7 +62,6 @@ public class QEPTest extends TestDriver {
         s_employee.initField(2, AttrType.INTEGER, 4, colNames[2].trim());
         s_employee.initField(3, AttrType.INTEGER, 4, colNames[3].trim());
         s_employee.initField(4, AttrType.INTEGER, 4, colNames[4].trim());
-        s_employee.print();
       }
 
       while (emps_scanner.hasNextLine()) {
@@ -71,6 +70,7 @@ public class QEPTest extends TestDriver {
       }
     } catch(Exception e){
       e.printStackTrace(System.out);
+      System.out.println("Couldn\'t read emps file");
     }
 
     try {
@@ -86,7 +86,6 @@ public class QEPTest extends TestDriver {
         s_department.initField(1, AttrType.STRING, 30, colNames[1]);
         s_department.initField(2, AttrType.INTEGER, 4, colNames[2]);
         s_department.initField(3, AttrType.INTEGER, 4, colNames[3]);
-        s_department.print();
       }
 
       while (dept_scanner.hasNextLine()) {
@@ -95,6 +94,7 @@ public class QEPTest extends TestDriver {
       }
     } catch(Exception e){
       e.printStackTrace(System.out);
+      System.out.println("Couldn\'t read dept file");
     }
 
     QEPTest qept = new QEPTest();
