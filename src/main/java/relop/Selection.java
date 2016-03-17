@@ -57,25 +57,25 @@ public class Selection extends Iterator {
    * Returns true if there are more tuples, false otherwise.
    */
   public boolean hasNext() {
-    // is there another tuple in the file
-    //  that matches all of the predicates?
-    // return scan.hasNext();
-
-    if (!scan.hasNext()) {
+    // if there is already a tuple in next, return true
+    if (next != null) {
+      return true;
+    } else if (!scan.hasNext()) { // no more tuples in the iterator
       return false;
-    }
-
-    boolean passes;
-    do {
-      passes = false;
-      next = scan.getNext();
-      for (Predicate pred : preds) {
-        passes = passes || pred.evaluate(next);
+    } else { // the typical case that we need to find the next tuple
+      boolean passes = false;
+      while (scan.hasNext() && !passes) {
+        next = scan.getNext();
+        for (Predicate pred : preds) {
+          if (passes = pred.evaluate(next)) {
+            break;
+          }
+        }
       }
-    } while (!passes && scan.hasNext()); // exit the loop when we find a matching tuple
 
-    // the state of the 'next' tuple should be stored in passes
-    return passes;
+      // the state of the 'next' tuple should be stored in passes
+      return passes;
+    }
   }
 
   /**
@@ -85,19 +85,13 @@ public class Selection extends Iterator {
    */
   public Tuple getNext() {
     // get the next tuple that matches the predicates
-    Tuple ret = next;
-
-    if (next != null && !scan.hasNext()) { // next is the last element in the set of tuples
+    if (next != null) {
+      Tuple ret = next;
       next = null;
-    }
-    else if (next == null && !scan.hasNext()) { // there are no more tuples and next has been set to null
-      // this means we are at the end of the scan after evaluating the last tuple
-      // and the user still called getNext without checking if there were any more tuples in the scan.
-      //  What a dick.
+      return ret;
+    } else {
       throw new IllegalStateException();
     }
-
-    return ret;
   }
 
 } // public class Selection extends Iterator
