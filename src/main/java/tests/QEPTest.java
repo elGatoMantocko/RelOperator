@@ -90,6 +90,8 @@ public class QEPTest extends TestDriver {
         // if we have to build a hash index, we will just make a FileScan
         tuple.insertIntoFile(empHeapFile);
       }
+
+      emps_scanner.close();
     } catch(Exception e){
       e.printStackTrace(System.out);
       System.out.println("Couldn\'t read emps file");
@@ -126,6 +128,8 @@ public class QEPTest extends TestDriver {
         // if we have to build a hash index, we will just make a FileScan
         tuple.insertIntoFile(deptHeapFile);
       }
+
+      dept_scanner.close();
     } catch(Exception e){
       e.printStackTrace(System.out);
       System.out.println("Couldn\'t read dept file");
@@ -144,8 +148,7 @@ public class QEPTest extends TestDriver {
         System.out.println("Error(s) encountered during " + TEST_NAME + ".");
         System.exit(-1);
     } else {
-        System.out.println("All " + TEST_NAME
-                + " completed; verify output for correctness.");
+        System.out.println("All " + TEST_NAME + " completed; verify output for correctness.");
     }
   }
 
@@ -155,27 +158,12 @@ public class QEPTest extends TestDriver {
     System.out.println("\nTest 1: Display for each employee his ID, Name and Age\n");
 
     try {
-      this.initCounts();
-      this.saveCounts(null);
-
-      HeapFile employees = new HeapFile(null);
-      Tuple tuple = new Tuple(s_employee);
-      tuple.setAllFields(1, "Nick", 25, 900, 1);
-      tuple.insertIntoFile(employees);
-      tuple.setAllFields(6, "John", 40, 15000, 5);
-      tuple.insertIntoFile(employees);
-      tuple.setAllFields(7, "Josef", 32, 7000, 1);
-      tuple.insertIntoFile(employees);
-      this.saveCounts("emps");
-
-      this.saveCounts(null);
-      FileScan scan = new FileScan(s_employee, employees);
+      FileScan scan = new FileScan(s_employee, empHeapFile);
 
       Projection pro = new Projection(scan, 0, 1, 2);
       pro.explain(0);
       System.out.println();
       pro.execute();
-      this.saveCounts("project");
 
       System.out.print("\n\nTest 1 completed without exception.");
 
@@ -184,16 +172,30 @@ public class QEPTest extends TestDriver {
       e.printStackTrace(System.out);
       System.out.print("\n\nTest 1 terminated because of exception.");
       return FAIL;
-    } finally {
-      printSummary(2);
-      System.out.println();
     }
   }
 
   // Display the Name for the departments with MinSalary = MaxSalary
   protected boolean test2() {
-    // ignore
-    return true;
+    System.out.println("\nTest 2: Display the Name for the departments with MinSalary = MaxSalary\n");
+
+    try {
+      FileScan scan = new FileScan(s_department, deptHeapFile);
+
+      // i tried this with column names, but couldn't get it to work
+      Selection sel = new Selection(scan, new Predicate(AttrOperator.EQ, AttrType.FIELDNO, 2, AttrType.FIELDNO, 3));
+      sel.explain(0);
+      System.out.println();
+      sel.execute();
+
+      System.out.print("\n\nTest 2 completed without exception.");
+
+      return PASS;
+    } catch (Exception e) {
+      e.printStackTrace(System.out);
+      System.out.print("\n\nTest 2 terminated because of exception.");
+      return FAIL;
+    }
   }
 
   // For each employee, display his Name and the Name of his 
