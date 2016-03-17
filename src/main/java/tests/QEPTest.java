@@ -28,10 +28,19 @@ public class QEPTest extends TestDriver {
   protected static Schema s_employee;
   protected static Schema s_department;
 
+  protected static HeapFile empHeapFile;
+  protected static HeapFile deptHeapFile;
+
   public static void main(String[] args) {
 
     File emps_file;
     File dept_file;
+
+    QEPTest qept = new QEPTest();
+    qept.create_minibase();
+
+    empHeapFile = new HeapFile(null);
+    deptHeapFile = new HeapFile(null);
 
     if (args.length > 0) {
       String rel_path = args[0];
@@ -67,6 +76,19 @@ public class QEPTest extends TestDriver {
       while (emps_scanner.hasNextLine()) {
         String emp = emps_scanner.nextLine();
         String[] fieldVals = emp.split(",");
+
+        Tuple tuple = new Tuple(s_employee);
+
+        tuple.setAllFields(
+            Integer.parseInt(fieldVals[0].trim()),
+            fieldVals[1].trim(),
+            Integer.parseInt(fieldVals[2].trim()),
+            Integer.parseInt(fieldVals[3].trim()),
+            Integer.parseInt(fieldVals[4].trim())
+        );
+
+        // if we have to build a hash index, we will just make a FileScan
+        tuple.insertIntoFile(empHeapFile);
       }
     } catch(Exception e){
       e.printStackTrace(System.out);
@@ -91,15 +113,23 @@ public class QEPTest extends TestDriver {
       while (dept_scanner.hasNextLine()) {
         String dept = dept_scanner.nextLine();
         String[] fieldVals = dept.split(",");
+
+        Tuple tuple = new Tuple(s_department);
+
+        tuple.setAllFields(
+            Integer.parseInt(fieldVals[0].trim()),
+            fieldVals[1].trim(),
+            Integer.parseInt(fieldVals[2].trim()),
+            Integer.parseInt(fieldVals[3].trim())
+        );
+
+        // if we have to build a hash index, we will just make a FileScan
+        tuple.insertIntoFile(deptHeapFile);
       }
     } catch(Exception e){
       e.printStackTrace(System.out);
       System.out.println("Couldn\'t read dept file");
     }
-
-    QEPTest qept = new QEPTest();
-    qept.create_minibase();
-
 
     System.out.println("\n" + "Running " + TEST_NAME + "...");
     boolean status = PASS;
