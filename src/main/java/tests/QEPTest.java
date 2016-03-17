@@ -165,12 +165,12 @@ public class QEPTest extends TestDriver {
       System.out.println();
       pro.execute();
 
-      System.out.print("\n\nTest 1 completed without exception.");
+      System.out.println("\n\nTest 1 completed without exception.");
 
       return PASS;
     } catch (Exception e) {
       e.printStackTrace(System.out);
-      System.out.print("\n\nTest 1 terminated because of exception.");
+      System.out.println("\n\nTest 1 terminated because of exception.");
       return FAIL;
     }
   }
@@ -198,10 +198,26 @@ public class QEPTest extends TestDriver {
     }
   }
 
-  // For each employee, display his Name and the Name of his 
-  //  department as well as the maximum salary of his department
+  // For each employee, display his Name and the Name of his department as well as the maximum salary of his department
   protected boolean test3() {
-    // ignore
+    System.out.println("\nTest 3: For each employee, display his Name and the Name of his department as well as the maximum salary of his department\n");
+
+    try {
+      FileScan emp_scan = new FileScan(s_employee, empHeapFile);
+      FileScan dept_scan = new FileScan(s_department, deptHeapFile);
+
+      HashJoin join = new HashJoin(dept_scan, emp_scan, 0, 4);
+
+      Projection pro = new Projection(join, 5, 1, 3);
+
+      pro.explain(0);
+      System.out.println();
+      pro.execute();
+
+    } catch(Exception e){
+      e.printStackTrace();
+    }
+
     return true;
   }
 
