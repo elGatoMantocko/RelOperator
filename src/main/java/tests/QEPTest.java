@@ -17,6 +17,8 @@ import relop.Selection;
 import relop.SimpleJoin;
 import relop.Tuple;
 
+import java.io.File;
+
 public class QEPTest extends TestDriver {
 
   protected static final String TEST_NAME = "query evaluation pipeline tests";
@@ -25,6 +27,21 @@ public class QEPTest extends TestDriver {
   protected static Schema s_department;
 
   public static void main(String[] args) {
+
+    File emps_file;
+    File dept_file;
+
+    if (args.length > 0) {
+      String rel_path = args[0];
+      if (rel_path.charAt(rel_path.length() - 1) != '/') {
+        rel_path = rel_path.concat("/");
+      }
+      System.out.println(rel_path);
+      emps_file = new File(rel_path.concat("Employee.txt"));
+      dept_file = new File(rel_path.concat("Department.txt"));
+    } else {
+      // init a default location for the files here
+    }
 
     QEPTest qept = new QEPTest();
     qept.create_minibase();
