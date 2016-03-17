@@ -62,8 +62,43 @@ public class QEPTest extends TestDriver {
 
   // Display for each employee his ID, Name and Age
   protected boolean test1() {
-    // ignore
-    return true;
+    
+    System.out.println("\nTest 1: Display for each employee his ID, Name and Age\n");
+
+    try {
+      this.initCounts();
+      this.saveCounts(null);
+
+      HeapFile employees = new HeapFile(null);
+      Tuple tuple = new Tuple(s_employee);
+      tuple.setAllFields(1, "Nick", 25, 900, 1);
+      tuple.insertIntoFile(employees);
+      tuple.setAllFields(6, "John", 40, 15000, 5);
+      tuple.insertIntoFile(employees);
+      tuple.setAllFields(7, "Josef", 32, 7000, 1);
+      tuple.insertIntoFile(employees);
+      this.saveCounts("emps");
+
+      this.saveCounts(null);
+      FileScan scan = new FileScan(s_employee, employees);
+
+      Projection pro = new Projection(scan, 0, 1, 2);
+      pro.explain(0);
+      System.out.println();
+      pro.execute();
+      this.saveCounts("project");
+
+      System.out.print("\n\nTest 1 completed without exception.");
+
+      return PASS;
+    } catch (Exception e) {
+      e.printStackTrace(System.out);
+      System.out.print("\n\nTest 1 terminated because of exception.");
+      return FAIL;
+    } finally {
+      printSummary(2);
+      System.out.println();
+    }
   }
 
   // Display the Name for the departments with MinSalary = MaxSalary
