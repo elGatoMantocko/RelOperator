@@ -226,7 +226,29 @@ public class QEPTest extends TestDriver {
 
   // Display the Name for each employee whose Salary is greater than the maximum salary of his department.
   protected boolean test4() {
-    // ignore
-    return true;
+    System.out.println("\nTest 4: Display the Name for each employee whose Salary is greater than the maximum salary of his department.\n");
+
+    try {
+      FileScan emp_scan = new FileScan(s_employee, empHeapFile);
+      FileScan dept_scan = new FileScan(s_department, deptHeapFile);
+
+      HashJoin join = new HashJoin(dept_scan, emp_scan, 0, 4);
+
+      Selection sel = new Selection(join, new Predicate(AttrOperator.GT, AttrType.FIELDNO, 7, AttrType.FIELDNO, 3));
+
+      Projection pro = new Projection(sel, 5);
+
+      pro.explain(0);
+      System.out.println();
+      pro.execute();
+
+      System.out.print("\n\nTest 4 completed without exception.");
+
+      return PASS;
+    } catch (Exception e) {
+      e.printStackTrace(System.out);
+      System.out.print("\n\nTest 4 terminated because of exception.");
+      return FAIL;
+    }
   }
 }
