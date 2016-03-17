@@ -17,6 +17,8 @@ import relop.Selection;
 import relop.SimpleJoin;
 import relop.Tuple;
 
+import java.util.Scanner;
+
 import java.io.File;
 
 public class QEPTest extends TestDriver {
@@ -41,23 +43,63 @@ public class QEPTest extends TestDriver {
       dept_file = new File(rel_path.concat("Department.txt"));
     } else {
       // init a default location for the files here
+      emps_file = new File("./src/main/java/tests/SampleData/Employee.txt");
+      dept_file = new File("./src/main/java/tests/SampleData/Department.txt");
+    }
+
+    // lets first work on the employees table
+    try {
+      Scanner emps_scanner = new Scanner(emps_file);
+
+      // the first line has the names of the columns
+      if (emps_scanner.hasNextLine()) {
+        String firstLine = emps_scanner.nextLine();
+        String[] colNames = firstLine.split(",");
+        
+        s_employee = new Schema(5);
+        s_employee.initField(0, AttrType.INTEGER, 4, colNames[0].trim());
+        s_employee.initField(1, AttrType.STRING, 20, colNames[1].trim());
+        s_employee.initField(2, AttrType.INTEGER, 4, colNames[2].trim());
+        s_employee.initField(3, AttrType.INTEGER, 4, colNames[3].trim());
+        s_employee.initField(4, AttrType.INTEGER, 4, colNames[4].trim());
+        s_employee.print();
+      }
+
+      while (emps_scanner.hasNextLine()) {
+        String emp = emps_scanner.nextLine();
+        String[] fieldVals = emp.split(",");
+      }
+    } catch(Exception e){
+      e.printStackTrace(System.out);
+    }
+
+    try {
+      Scanner dept_scanner = new Scanner(dept_file);
+
+      // the first line has the names of the columns
+      if (dept_scanner.hasNextLine()) {
+        String firstLine = dept_scanner.nextLine();
+        String[] colNames = firstLine.split(",");
+        
+        s_department = new Schema(4);
+        s_department.initField(0, AttrType.INTEGER, 4, colNames[0]);
+        s_department.initField(1, AttrType.STRING, 30, colNames[1]);
+        s_department.initField(2, AttrType.INTEGER, 4, colNames[2]);
+        s_department.initField(3, AttrType.INTEGER, 4, colNames[3]);
+        s_department.print();
+      }
+
+      while (dept_scanner.hasNextLine()) {
+        String dept = dept_scanner.nextLine();
+        String[] fieldVals = dept.split(",");
+      }
+    } catch(Exception e){
+      e.printStackTrace(System.out);
     }
 
     QEPTest qept = new QEPTest();
     qept.create_minibase();
 
-    s_employee = new Schema(5);
-    s_employee.initField(0, AttrType.INTEGER, 4, "EmpId");
-    s_employee.initField(1, AttrType.STRING, 20, "Name");
-    s_employee.initField(2, AttrType.INTEGER, 4, "Age");
-    s_employee.initField(3, AttrType.INTEGER, 4, "Salary");
-    s_employee.initField(4, AttrType.INTEGER, 4, "DeptId");
-
-    s_department = new Schema(4);
-    s_department.initField(0, AttrType.INTEGER, 4, "DeptId");
-    s_department.initField(1, AttrType.STRING, 50, "Name");
-    s_department.initField(2, AttrType.INTEGER, 4, "MinSalary");
-    s_department.initField(3, AttrType.INTEGER, 4, "MaxSalary");
 
     System.out.println("\n" + "Running " + TEST_NAME + "...");
     boolean status = PASS;

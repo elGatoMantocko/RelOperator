@@ -10,7 +10,8 @@ compile: src/main/java/*/*.java
 
 rotest: compile
 	$(JAVA) -cp $(CLASSPATH) tests.ROTest
-	$(JAVA) -cp $(CLASSPATH) tests.QEPTest ./src/main/java/tests/SampleData
+	$(JAVA) -cp $(CLASSPATH) tests.QEPTest
+	# $(JAVA) -cp $(CLASSPATH) tests.QEPTest ./src/main/java/tests/SampleData
 
 clean:
 	rm -rf bin *.minibase
