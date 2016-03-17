@@ -214,15 +214,17 @@ public class QEPTest extends TestDriver {
       System.out.println();
       pro.execute();
 
-    } catch(Exception e){
-      e.printStackTrace();
-    }
+      System.out.print("\n\nTest 3 completed without exception.");
 
-    return true;
+      return PASS;
+    } catch (Exception e) {
+      e.printStackTrace(System.out);
+      System.out.print("\n\nTest 3 terminated because of exception.");
+      return FAIL;
+    }
   }
 
-  // Display the Name for each employee whose Salary is
-  //  greater than the maximum salary of his department.
+  // Display the Name for each employee whose Salary is greater than the maximum salary of his department.
   protected boolean test4() {
     // ignore
     return true;
