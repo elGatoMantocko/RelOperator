@@ -27,8 +27,8 @@ public class HashJoinTest extends ProvidedTestsRoot {
 
   @After
   public void tearDown() throws Exception {
-    hashout.delete();
-    simpleout.delete();
+    //hashout.delete();
+    //simpleout.delete();
   }
 
   @Test
@@ -62,9 +62,11 @@ public class HashJoinTest extends ProvidedTestsRoot {
     join.execute();
 
     System.setOut(new PrintStream(simpleout));
-    SimpleJoin sj = new SimpleJoin(drivers, rides, new Predicate(AttrOperator.EQ, AttrType.FIELDNO, 0, AttrType.FIELDNO, drivers.getSchema().getLength() + 1));
-    sj.execute();
-
+    Predicate[] preds = new Predicate[]{new Predicate(AttrOperator.EQ,
+            AttrType.FIELDNO, 0, AttrType.FIELDNO, 5)};
+    SimpleJoin sjoin = new SimpleJoin(new FileScan(ProvidedTestsHelper.getDriversSchema(), ProvidedTestsHelper.fillDriversFile().getValue1()),
+            new FileScan(ProvidedTestsHelper.getDriversSchema(), ProvidedTestsHelper.fillDriversFile().getValue1()), preds);
+    sjoin.execute();
     System.setOut(stdout);
 
     List<String> linesOfHashJoin = FileHelper.getLinesOfFile(hashout.getAbsolutePath());
