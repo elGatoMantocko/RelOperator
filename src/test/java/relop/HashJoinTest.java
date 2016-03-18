@@ -27,8 +27,8 @@ public class HashJoinTest extends ProvidedTestsRoot {
 
   @After
   public void tearDown() throws Exception {
-    //hashout.delete();
-    //simpleout.delete();
+    hashout.delete();
+    simpleout.delete();
   }
 
   @Test
