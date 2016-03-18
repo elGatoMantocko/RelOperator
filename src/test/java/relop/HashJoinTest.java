@@ -2,6 +2,7 @@ package relop;
 
 import global.AttrOperator;
 import global.AttrType;
+import helpers.FileHelper;
 import helpers.ProvidedTestsHelper;
 
 import org.junit.After;
@@ -9,8 +10,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -63,13 +62,13 @@ public class HashJoinTest extends ProvidedTestsRoot {
     join.execute();
 
     System.setOut(new PrintStream(simpleout));
-    SimpleJoin sj = new SimpleJoin(drivers, rides, new Predicate(AttrOperator.EQ, AttrType.FIELDNO, 0, AttrType.FIELDNO, 0));
+    SimpleJoin sj = new SimpleJoin(drivers, rides, new Predicate(AttrOperator.EQ, AttrType.FIELDNO, 0, AttrType.FIELDNO, drivers.getSchema().getLength() + 1));
     sj.execute();
 
     System.setOut(stdout);
 
-    List<String> linesOfHashJoin = getLinesOfFile(hashout.getAbsolutePath());
-    List<String> linesOfSimpleJoin = getLinesOfFile(simpleout.getAbsolutePath());
+    List<String> linesOfHashJoin = FileHelper.getLinesOfFile(hashout.getAbsolutePath());
+    List<String> linesOfSimpleJoin = FileHelper.getLinesOfFile(simpleout.getAbsolutePath());
 
     assertEquals("Should have same number of tuples", linesOfSimpleJoin.size(), linesOfHashJoin.size());
 
@@ -77,17 +76,6 @@ public class HashJoinTest extends ProvidedTestsRoot {
     for(int i = 0; i < linesOfHashJoin.size(); i++) {
       assertEquals("Lines should be the same", linesOfSimpleJoin.get(i), linesOfHashJoin.get(i));
     }
-  }
-
-  private List<String> getLinesOfFile(String filename) throws IOException {
-    BufferedReader reader = new BufferedReader(new FileReader(filename));
-    List<String> list=new ArrayList<String>();
-    String line="";
-    while((line=reader.readLine())!=null){
-      list.add(line);
-    }
-    Collections.sort(list);
-    return list;
   }
 
 }
