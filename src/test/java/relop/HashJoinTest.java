@@ -56,9 +56,8 @@ public class HashJoinTest extends ProvidedTestsRoot {
     PrintStream stdout = System.out;
 
     System.setOut(new PrintStream(hashout));
-    FileScan drivers = ProvidedTestsHelper.hashFillDrivers();
-    FileScan rides = ProvidedTestsHelper.hashFillRides();
-    HashJoin join = new HashJoin(drivers, rides, 0, 0);
+    HashJoin join = new HashJoin(new FileScan(ProvidedTestsHelper.getDriversSchema(), ProvidedTestsHelper.fillDriversFile().getValue1()),
+            new FileScan(ProvidedTestsHelper.getDriversSchema(), ProvidedTestsHelper.fillDriversFile().getValue1()), 0, 0);
     join.execute();
 
     System.setOut(new PrintStream(simpleout));
