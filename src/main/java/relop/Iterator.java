@@ -1,5 +1,8 @@
 package relop;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * <h3>Minibase Iterators</h3>
  * Query execution is driven by a tree of relational operators, all of which are
@@ -71,6 +74,15 @@ public abstract class Iterator {
     }
     close();
     return cnt;
+  }
+
+  public List<Tuple> executeToList() {
+    List<Tuple> list = new ArrayList<Tuple>();
+    while (hasNext()) {
+      list.add(getNext());
+    }
+    close();
+    return list;
   }
 
   /**
