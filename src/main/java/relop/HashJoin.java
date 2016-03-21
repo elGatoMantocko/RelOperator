@@ -8,23 +8,23 @@ import relop.IndexScan;
 
 public class HashJoin extends Iterator {
 
-  private IndexScan outerScan, innerScan;
-  private int outercolnum, innercolnum, currentHash;
+  private IndexScan left, right;
+  private int leftColNum, rightColNum, currentHash;
 
   private HashTableDup hashTable;
   private Tuple[] tupsInBucket;
-  private Tuple currentInnerTup;
+  private Tuple currentRightTup;
   // we need to save the state of the current bucket search
   private int posInTupsArray;
   
   private Tuple next;
 
-  public HashJoin(Iterator outer, Iterator inner, int outercolnum, int innercolnum) {
+  public HashJoin(Iterator left, Iterator right, int leftColNum, int rightColNum) {
     // partitioning phase
-    this.outercolnum = outercolnum;
-    this.innercolnum = innercolnum;
+    this.leftColNum = leftColNum;
+    this.rightColNum = rightColNum;
 
-    this.setSchema(Schema.join(outer.getSchema(), inner.getSchema()));
+    this.setSchema(Schema.join(left.getSchema(), right.getSchema()));
     
     // these will be used to determine the next tuples in the hash
     this.next = new Tuple(getSchema());
@@ -33,17 +33,17 @@ public class HashJoin extends Iterator {
     this.currentHash = -1;
 
     // build the outer index scan
-    if (outer instanceof IndexScan) {
-      this.outerScan = (IndexScan)outer;
+    if (left instanceof IndexScan) {
+      this.left = (IndexScan)left;
     } else {
-      this.outerScan = getIndexScan(outer, outercolnum);
+      this.left = getIndexScan(left, leftColNum);
     }
 
     // build the inner index scan
-    if (inner instanceof IndexScan) {
-      this.innerScan = (IndexScan)inner;
+    if (right instanceof IndexScan) {
+      this.right = (IndexScan)right;
     } else {
-      this.innerScan = getIndexScan(inner, innercolnum);
+      this.right = getIndexScan(right, rightColNum);
     }
   }
 
@@ -61,8 +61,8 @@ public class HashJoin extends Iterator {
 
   @Override
   public void restart() {
-    outerScan.restart();
-    innerScan.restart();
+    left.restart();
+    right.restart();
   }
 
   @Override
@@ -70,19 +70,19 @@ public class HashJoin extends Iterator {
     this.indent(depth);
     System.out.println("HashJoin");
 
-    outerScan.explain(depth + 1);
-    innerScan.explain(depth + 1);
+    left.explain(depth + 1);
+    right.explain(depth + 1);
   }
 
   @Override
   public void close() {
-    outerScan.close();
-    innerScan.close();
+    left.close();
+    right.close();
   }
 
   @Override
   public boolean isOpen() {
-    return outerScan.isOpen() && innerScan.isOpen();
+    return left.isOpen() && right.isOpen();
   }
 
   @Override
@@ -91,32 +91,32 @@ public class HashJoin extends Iterator {
     // check if the hashtable has elements in it or not
     if (tupsInBucket == null) {
       // we need to find the tuples in the current bucket
-      int hashValue = innerScan.getNextHash();
+      int hashValue = right.getNextHash();
       // the outerBucket is not on the correct hash so we need to rebuild the hashTable
       if (hashValue != currentHash) {
         currentHash = hashValue;
-        outerScan.restart();
+        left.restart();
         hashTable.clear();
 
         // we need to find the correct bucket on the outer scan
-        while (outerScan.hasNext() && outerScan.getNextHash() != currentHash) {
-          outerScan.getNext();
+        while (left.hasNext() && left.getNextHash() != currentHash) {
+          left.getNext();
         }
         
         // find all of the tuples in the current hash index and add them to the hashTable
-        while (outerScan.getNextHash() == currentHash && outerScan.hasNext()) {
-          Tuple outerTup = outerScan.getNext();
-          hashTable.add(new SearchKey(outerTup.getField(outercolnum)), outerTup);
+        while (left.getNextHash() == currentHash && left.hasNext()) {
+          Tuple outerTup = left.getNext();
+          hashTable.add(new SearchKey(outerTup.getField(leftColNum)), outerTup);
         }
       }
 
-      if (innerScan.hasNext()) {
-        currentInnerTup = innerScan.getNext();
-        tupsInBucket = hashTable.getAll(new SearchKey(currentInnerTup.getField(innercolnum)));
+      if (right.hasNext()) {
+        currentRightTup = right.getNext();
+        tupsInBucket = hashTable.getAll(new SearchKey(currentRightTup.getField(rightColNum)));
         if (tupsInBucket != null) {
           while (posInTupsArray < tupsInBucket.length) {
-            if (currentInnerTup.getField(innercolnum).equals(tupsInBucket[posInTupsArray].getField(outercolnum))) {
-              next = Tuple.join(tupsInBucket[posInTupsArray++], currentInnerTup, getSchema());
+            if (currentRightTup.getField(rightColNum).equals(tupsInBucket[posInTupsArray].getField(leftColNum))) {
+              next = Tuple.join(tupsInBucket[posInTupsArray++], currentRightTup, getSchema());
               return true;
             }
             posInTupsArray++;
@@ -135,8 +135,8 @@ public class HashJoin extends Iterator {
       return hasNext();
     } else {
       while (posInTupsArray < tupsInBucket.length) {
-        if (currentInnerTup.getField(innercolnum).equals(tupsInBucket[posInTupsArray].getField(outercolnum))) {
-          next = Tuple.join(tupsInBucket[posInTupsArray++], currentInnerTup, getSchema());
+        if (currentRightTup.getField(rightColNum).equals(tupsInBucket[posInTupsArray].getField(leftColNum))) {
+          next = Tuple.join(tupsInBucket[posInTupsArray++], currentRightTup, getSchema());
           return true;
         }
         posInTupsArray++;
