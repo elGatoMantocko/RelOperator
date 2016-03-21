@@ -18,6 +18,7 @@ public class FileHelper {
         while((line=reader.readLine())!=null){
             list.add(line);
         }
+        reader.close();
         Collections.sort(list);
         return list;
     }
