@@ -32,14 +32,14 @@ public class HashJoin extends Iterator {
 
     this.currentHash = -1;
 
-    // build the outer index scan
+    // build the right index scan
     if (left instanceof IndexScan) {
       this.left = (IndexScan)left;
     } else {
       this.left = getIndexScan(left, leftColNum);
     }
 
-    // build the inner index scan
+    // build the right index scan
     if (right instanceof IndexScan) {
       this.right = (IndexScan)right;
     } else {
@@ -92,21 +92,21 @@ public class HashJoin extends Iterator {
     if (tupsInBucket == null) {
       // we need to find the tuples in the current bucket
       int hashValue = right.getNextHash();
-      // the outerBucket is not on the correct hash so we need to rebuild the hashTable
+      // the right Bucket is not on the correct hash so we need to rebuild the hashTable
       if (hashValue != currentHash) {
         currentHash = hashValue;
         left.restart();
         hashTable.clear();
 
-        // we need to find the correct bucket on the outer scan
+        // we need to find the correct bucket on the right scan
         while (left.hasNext() && left.getNextHash() != currentHash) {
           left.getNext();
         }
         
         // find all of the tuples in the current hash index and add them to the hashTable
         while (left.getNextHash() == currentHash && left.hasNext()) {
-          Tuple outerTup = left.getNext();
-          hashTable.add(new SearchKey(outerTup.getField(leftColNum)), outerTup);
+          Tuple leftTup = left.getNext();
+          hashTable.add(new SearchKey(leftTup.getField(leftColNum)), leftTup);
         }
       }
 
