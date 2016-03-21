@@ -2,19 +2,13 @@ package tests;
 
 import global.AttrOperator;
 import global.AttrType;
-import global.RID;
-import global.SearchKey;
 import heap.HeapFile;
-import index.HashIndex;
 import relop.FileScan;
 import relop.HashJoin;
-import relop.IndexScan;
-import relop.KeyScan;
 import relop.Predicate;
 import relop.Projection;
 import relop.Schema;
 import relop.Selection;
-import relop.SimpleJoin;
 import relop.Tuple;
 
 import java.util.Scanner;
