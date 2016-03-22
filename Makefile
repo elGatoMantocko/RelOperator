@@ -1,19 +1,16 @@
-JDKPATH = /usr
-LIBPATH = lib/bufmgr.jar:lib/diskmgr.jar:lib/heap.jar:lib/index.jar
+JAVA = /usr/bin/java
+JAVAC = /usr/bin/javac
+CLASSPATH = .:..:lib/bufmgr.jar:lib/diskmgr.jar:lib/heap.jar:lib/index.jar
 
-CLASSPATH = .:..:$(LIBPATH)
-BINPATH = $(JDKPATH)/bin
-JAVAC = $(JDKPATH)/bin/javac 
-JAVA  = $(JDKPATH)/bin/java 
+all: xx
 
-PROGS = xx
+compile: src/main/java/*/*.java
+	@mkdir -p ./bin
+	$(JAVAC) -cp $(CLASSPATH) -d ./bin src/main/java/*/*.java
 
-all: $(PROGS)
-
-compile:src/*/*.java
-	$(JAVAC) -cp $(CLASSPATH) -d bin src/*/*.java
-
-xx : compile
+xx: compile
 	$(JAVA) -cp $(CLASSPATH):bin tests.ROTest
-	$(JAVA) -cp $(CLASSPATH):bin tests.QEPTest src/tests/SampleData
+	# $(JAVA) -cp $(CLASSPATH):bin tests.QEPTest src/SampleData
 
+clean:
+	rm -rf bin *.minibase
