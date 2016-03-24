@@ -1,4 +1,8 @@
 EmpId, Name, Age, Salary, DeptID
 1, Nick, 25, 900, 1
+2, Elliott Mantock, 24, 75000, 2
+3, Austin Sims, 25, 100000, 3
+4, Aref, 53, 300000, 4
+5, David, 23, 0, 6
 6, John, 40, 15000, 5
 7, Josef, 32, 7000, 1

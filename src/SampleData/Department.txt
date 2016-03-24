@@ -1,3 +1,7 @@
 DeptId, Name, MinSalary, MaxSalary
 1, Computer Science, 1000, 10000
+2, Expedia, 30000, 250000
+3, Google, 20000, 1000000
+4, Software Engineering, 250000, 250000
 5, Mechanical Engineering, 10000, 10000
+6, Microsoft, 30000, 1200000

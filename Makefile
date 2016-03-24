@@ -10,7 +10,7 @@ compile: src/main/java/*/*.java
 
 xx: compile
 	$(JAVA) -cp $(CLASSPATH):bin tests.ROTest
-	# $(JAVA) -cp $(CLASSPATH):bin tests.QEPTest src/SampleData
+	$(JAVA) -cp $(CLASSPATH):bin tests.QEPTest src/SampleData
 
 clean:
 	rm -rf bin *.minibase
