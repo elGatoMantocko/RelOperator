@@ -155,8 +155,6 @@ public class QEPTest extends TestDriver {
       FileScan scan = new FileScan(s_employee, empHeapFile);
 
       Projection pro = new Projection(scan, 0, 1, 2);
-      pro.explain(0);
-      System.out.println();
       pro.execute();
 
       System.out.println("\n\nTest 1 completed without exception.");
@@ -178,16 +176,14 @@ public class QEPTest extends TestDriver {
 
       // i tried this with column names, but couldn't get it to work
       Selection sel = new Selection(scan, new Predicate(AttrOperator.EQ, AttrType.FIELDNO, 2, AttrType.FIELDNO, 3));
-      sel.explain(0);
-      System.out.println();
       sel.execute();
 
-      System.out.print("\n\nTest 2 completed without exception.");
+      System.out.println("\n\nTest 2 completed without exception.");
 
       return PASS;
     } catch (Exception e) {
       e.printStackTrace(System.out);
-      System.out.print("\n\nTest 2 terminated because of exception.");
+      System.out.println("\n\nTest 2 terminated because of exception.");
       return FAIL;
     }
   }
@@ -204,16 +200,14 @@ public class QEPTest extends TestDriver {
 
       Projection pro = new Projection(join, 5, 1, 3);
 
-      pro.explain(0);
-      System.out.println();
       pro.execute();
 
-      System.out.print("\n\nTest 3 completed without exception.");
+      System.out.println("\n\nTest 3 completed without exception.");
 
       return PASS;
     } catch (Exception e) {
       e.printStackTrace(System.out);
-      System.out.print("\n\nTest 3 terminated because of exception.");
+      System.out.println("\n\nTest 3 terminated because of exception.");
       return FAIL;
     }
   }
@@ -232,16 +226,14 @@ public class QEPTest extends TestDriver {
 
       Projection pro = new Projection(sel, 5);
 
-      pro.explain(0);
-      System.out.println();
       pro.execute();
 
-      System.out.print("\n\nTest 4 completed without exception.");
+      System.out.println("\n\nTest 4 completed without exception.");
 
       return PASS;
     } catch (Exception e) {
       e.printStackTrace(System.out);
-      System.out.print("\n\nTest 4 terminated because of exception.");
+      System.out.println("\n\nTest 4 terminated because of exception.");
       return FAIL;
     }
   }
