@@ -27,7 +27,7 @@ public class HashJoin extends Iterator {
     this.setSchema(Schema.join(left.getSchema(), right.getSchema()));
     
     // these will be used to determine the next tuples in the hash
-    this.next = new Tuple(getSchema());
+    this.next = null;
     this.hashTable = new HashTableDup();
 
     this.currentHash = -1;
