@@ -88,6 +88,10 @@ public class HashJoin extends Iterator {
   @Override
   public boolean hasNext() {
 
+    if (next != null) {
+      return true;
+    }
+
     // check if the hashtable has elements in it or not
     if (tupsInBucket == null) {
       // we need to find the tuples in the current bucket
@@ -149,11 +153,13 @@ public class HashJoin extends Iterator {
 
   @Override
   public Tuple getNext() {
-    if (next == null) {
+    if (next == null && !hasNext()) {
       throw new IllegalStateException();
+    } else {
+      Tuple ret = next;
+      next = null;
+      return ret;
     }
-    
-    return next;
   }
 }
 

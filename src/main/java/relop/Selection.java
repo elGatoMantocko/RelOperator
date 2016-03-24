@@ -64,8 +64,11 @@ public class Selection extends Iterator {
       return false;
     } else { // the typical case that we need to find the next tuple
       boolean passes = false;
+      // while there are still tuples left in the scan
       while (scan.hasNext() && !passes) {
+        // get the next tuple
         next = scan.getNext();
+        // if the tuple passes a predicate then we can return true
         for (Predicate pred : preds) {
           if (passes = pred.evaluate(next)) {
             break;
@@ -84,7 +87,7 @@ public class Selection extends Iterator {
    * @throws IllegalStateException if no more tuples
    */
   public Tuple getNext() {
-    // get the next tuple that matches the predicates
+    // return the next tuple that matches the predicates
     if (next != null) {
       Tuple ret = next;
       next = null;
