@@ -155,6 +155,11 @@ public class QEPTest extends TestDriver {
       FileScan scan = new FileScan(s_employee, empHeapFile);
 
       Projection pro = new Projection(scan, 0, 1, 2);
+
+      System.out.println("  ~> Explain the operation");
+      pro.explain(1);
+      System.out.println();
+      
       pro.execute();
 
       System.out.println("\n\nTest 1 completed without exception.");
@@ -176,6 +181,11 @@ public class QEPTest extends TestDriver {
 
       // i tried this with column names, but couldn't get it to work
       Selection sel = new Selection(scan, new Predicate(AttrOperator.EQ, AttrType.FIELDNO, 2, AttrType.FIELDNO, 3));
+
+      System.out.println("  ~> Explain the operation");
+      sel.explain(1);
+      System.out.println();
+
       sel.execute();
 
       System.out.println("\n\nTest 2 completed without exception.");
@@ -200,6 +210,10 @@ public class QEPTest extends TestDriver {
 
       Projection pro = new Projection(join, 5, 1, 3);
 
+      System.out.println("  ~> Explain the operation");
+      pro.explain(1);
+      System.out.println();
+      
       pro.execute();
 
       System.out.println("\n\nTest 3 completed without exception.");
@@ -226,6 +240,10 @@ public class QEPTest extends TestDriver {
 
       Projection pro = new Projection(sel, 5);
 
+      System.out.println("  ~> Explain the operation");
+      pro.explain(1);
+      System.out.println();
+      
       pro.execute();
 
       System.out.println("\n\nTest 4 completed without exception.");
